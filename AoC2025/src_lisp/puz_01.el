@@ -46,7 +46,7 @@ Each line of input must look like \"L68\" or \"R5\"."
 ;; (puz-parse)  ; eval with C-x C-e to inspect parsed output
 
 ;; dolist version
-(defun puz-solve-part1 (pairs)
+(defun puz-solve-part1-dolist (pairs)
   "Solve Part 1: count how many times the dial ends a move on position 0.
 
 The dial has 100 positions (0..99), starts at 50.  Each instruction is
@@ -70,7 +70,7 @@ The puzzle counts every instruction whose ending position is exactly 0."
     zeros))
 
 
-(message "Solution dolist for part 1 is = %S" (puz-solve-part1  (puz-parse)))
+(message "Solution dolist for part 1 is = %S" (puz-solve-part1-dolist  (puz-parse)))
 
 (defun puz-solve-part1-loop (pairs)
   "Solve part 1: using cl-loop"
@@ -102,4 +102,48 @@ The puzzle counts every instruction whose ending position is exactly 0."
 (message "Solution reduce for part 1 is = %S" (cdr (puz-solve-part1-reduce  (puz-parse))))
 
 
+
+;; dolist version
+(defun puz-solve-part2-dolist (pairs)
+  "Solve Part 2: count how many times the dial passes over 0"
+  (let* ((pos   50)             ; current dial position
+         (zeros 0))              ; running count of zero-landings
+    (dolist (p pairs)
+      (let* ((turn (cdr p))
+             (fullturn (floor turn 100))
+             (turn (mod turn 100))
+             (turn  (if (= (car p) ?R) turn (* -1 turn)))
+             )                     
+        (setq zeros (+ zeros fullturn))
+        (setq zeros (if (and (> turn 0) (/= pos 0) (>= (+ turn pos) 100)) (+ 1 zeros)  zeros))
+        (setq zeros (if (and (< turn 0) (/= pos 0) (<= (+ turn pos) 0)) (+ 1 zeros)  zeros))
+        (setq pos (mod (+ pos turn) 100))))
+    zeros))
+
+
+
+;; dolist version
+(defun puz-solve-part2-dolist (pairs)
+  "Solve Part 2: count every time the dial points at 0 — during a
+rotation (each full wrap, plus a boundary crossing) or landing on it."
+  (let* ((pos   50)             ; current dial position
+         (zeros 0))              ; running count of zero-landings
+    (dolist (p pairs)
+      (let* ((turn (cdr p))
+             (fullturn (floor turn 100))
+             (turn (mod turn 100))
+             (turn  (if (= (car p) ?R) turn (* -1 turn)))
+             )                     
+        (setq zeros (+ zeros fullturn))
+        (when (and (> turn 0) (/= pos 0) (>= (+ turn pos) 100)) (setq zeros (1+ zeros)))
+        (when (and (< turn 0) (/= pos 0) (<= (+ turn pos) 0)) (setq zeros (1+ zeros)))
+        (setq pos (mod (+ pos turn) 100))))
+    zeros))
+
+
+
+
+(message "Solution dolist for part 2 is = %S" (puz-solve-part2-dolist  (puz-parse))))
+
+(floor 500 100)
 ;;; puz_01.el ends here
