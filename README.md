@@ -1,6 +1,7 @@
 # Advent of Code
 
-Solutions and note from playing along with the [Advent of Code](https://adventofcode.com)
+Solutions and notes from solving the problems from the [Advent of Code](https://adventofcode.com) Christmas coding challenge.
 
+ 
 
 
