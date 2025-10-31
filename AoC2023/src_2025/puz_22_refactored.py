@@ -43,7 +43,7 @@ def highest_block():
 
 
 # Test for collision and find lowest possible position
-def move_down_horizontal(brick):
+def move_down_horizontal(brick_blox):
     current_z = highest_block() + 1
 
     # Test each z-level going downward
@@ -89,7 +89,7 @@ for idx, brick in enumerate(sorted_bricks[0:]):
             for y in range(brick[0][1], brick[1][1] + 1):
                 brick_blox.append((x, y))
 
-        current_z = move_down_horizontal(brick)
+        current_z = move_down_horizontal(brick_blox)
 
         # Place brick at current_z
         brick_map[idx] = []
@@ -131,20 +131,53 @@ for idx, brick in brick_map.items():
 
 
 # # ============================================================================
-# # PHASE 3: Find which bricks can be safely disintegrated
+# # Part 1, PHASE 3: Find which bricks can be safely disintegrated
 # # ============================================================================
 
 # # A brick can be removed if all bricks above it are supported by other bricks
 
-res = 0  # Count of safe-to-remove bricks
+def part1():
+    res = 0  # Count of safe-to-remove bricks
 
-for idx in brick_map.keys():
-    supporting_bricks = supporting[idx]
-    cnt_safe = 0
-    for brick_id in supporting_bricks:
-        if len(supported_by[brick_id]) > 1:
-            cnt_safe += 1
-    if cnt_safe == len(supporting_bricks) or len(supporting_bricks) == 0:
-        res += 1
-print(res)
+    for idx in brick_map.keys():
+        # Get all bricks this one supports
+        supporting_bricks = supporting[idx]
+        # Check if each brick above has alternative support
+        cnt_safe = 0
+        for brick_id in supporting_bricks:
+            if len(supported_by[brick_id]) > 1:
+                cnt_safe += 1
+        if cnt_safe == len(supporting_bricks) or len(supporting_bricks) == 0:
+            res += 1
+    print(res)
 
+
+#part1()
+
+
+# # ============================================================================
+# # Part 2, PHASE 4: Find chain reactions. 
+# # ============================================================================
+
+
+def part2():
+    
+    res = 0  # Count of safe-to-remove bricks
+
+    for idx in brick_map.keys():
+        queue = [idx]
+        removed = set([idx])
+        while queue:
+            current_idx = queue.pop(0)
+            removed.add(current_idx)
+            # Test which will fall if current_idx is removed
+            for brick_id in supporting[current_idx]:
+                if brick_id in removed:
+                    break
+                if len(supported_by[brick_id] - removed) == 0:
+                    queue.append(brick_id)
+        res += len(removed)-1
+    print(res)
+
+
+part2()
