@@ -168,7 +168,7 @@ def part2():
     for idx in brick_map.keys():
         # BFS/queue to process cascading failures
         queue = [idx]  # Start with the brick we're removing
-        removed = set([idx])  # Track all bricks that have fallen
+        removed = set()  # Track all bricks that have fallen
 
         # Process chain reaction
         while queue:
@@ -179,7 +179,7 @@ def part2():
             for brick_id in supporting[current_idx]:
                 # Skip if already processed
                 if brick_id in removed:
-                    break
+                    continue
 
                 # Check if brick_id loses all support after removing 'removed' bricks
                 # supported_by[brick_id] = all bricks supporting brick_id
