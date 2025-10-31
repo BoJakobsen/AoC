@@ -152,32 +152,44 @@ def part1():
     print(res)
 
 
-#part1()
+part1()
 
 
-# # ============================================================================
-# # Part 2, PHASE 4: Find chain reactions. 
-# # ============================================================================
-
+# ============================================================================
+# Part 2, PHASE 4: Find chain reactions
+# ============================================================================
+# For each brick, simulate removing it and count how many other bricks fall
 
 def part2():
-    
-    res = 0  # Count of safe-to-remove bricks
 
+    res = 0  # Total sum of falling bricks across all removal scenarios
+
+    # Try removing each brick one at a time
     for idx in brick_map.keys():
-        queue = [idx]
-        removed = set([idx])
+        # BFS/queue to process cascading failures
+        queue = [idx]  # Start with the brick we're removing
+        removed = set([idx])  # Track all bricks that have fallen
+
+        # Process chain reaction
         while queue:
-            current_idx = queue.pop(0)
-            removed.add(current_idx)
-            # Test which will fall if current_idx is removed
+            current_idx = queue.pop(0)  # Get next brick to check
+            removed.add(current_idx)  # Mark as fallen
+
+            # Test which bricks will fall when current_idx is removed
             for brick_id in supporting[current_idx]:
+                # Skip if already processed
                 if brick_id in removed:
                     break
-                if len(supported_by[brick_id] - removed) == 0:
-                    queue.append(brick_id)
-        res += len(removed)-1
-    print(res)
 
+                # Check if brick_id loses all support after removing 'removed' bricks
+                # supported_by[brick_id] = all bricks supporting brick_id
+                # supported_by[brick_id] - removed = remaining supports after removal
+                if len(supported_by[brick_id] - removed) == 0:
+                    queue.append(brick_id)  # This brick will fall too!
+
+        # Add count of fallen bricks (excluding the initial brick itself)
+        res += len(removed) - 1
+
+    print(res)
 
 part2()
