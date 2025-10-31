@@ -1,5 +1,3 @@
-from collections import defaultdict  # Allows for not checking if a key exists
-
 # Extensive commented by claude.ai
 
 # Day 22: Falling sand bricks simulation
@@ -19,99 +17,106 @@ bricks = [[list(map(int, x[0].split(','))), list(map(int, x[1].split(',')))]
 # Sort bricks by minimum z-coordinate (bottom-most first)
 # This ensures we drop bricks in the correct order (lowest first)
 sorted_bricks = sorted(bricks, key=lambda x: min([x[0][2], x[1][2]]))
+# all brick index's referrer to this list.
 
-# Data structures for tracking brick positions:
-# block_map: For each z-level, which (x,y) positions are occupied
-# Key: z-coordinate, Value: list of (x,y) tuples at that height
-block_map = defaultdict(list)  
-block_map[1] = []  # Ground level (z=1) starts empty
+
+# Define maps for the results after dropping the bricks
 
 # brick_map: For each brick, what positions does it occupy
 # Key: brick index, Value: list of (x,y,z) tuples
-brick_map = defaultdict(list)  
+brick_map = {}
 
-# inv_brick_map: For each position, which brick occupies it
+# Inverted_brick_map: For each position, which brick occupies it
 # Key: (x,y,z) tuple, Value: brick index
 inv_brick_map = {}
+
+
+# Highest level in which a block is placed 
+def highest_block():
+    if len(inv_brick_map) != 0:
+        N = max(inv_brick_map.keys(), key=lambda item: item[2])[2]
+    else:  # if no bricks has been plased N=1 is the lowest
+        N = 1
+    return N
+
+
+# Test for collision and find lowest possible position
+def move_down_horizontal(brick): 
+    current_z = highest_block() + 1
+
+    # Test each z-level going downward
+    while True:
+        has_collition = any((*cube, current_z) in inv_brick_map for cube in brick_blox)
+
+        if has_collition or current_z == 0:
+            current_z += 1  # Use the level above
+            break
+        else:
+            current_z -= 1  # Try one level lower
+    return current_z
+
+
+def move_down_vertically(xy_pos):
+    current_z = highest_block() + 1
+    # Test each z-level going downward
+
+    while True:
+        has_collition = (*xy_pos, current_z) in inv_brick_map 
+
+        if has_collition or current_z == 0:
+            current_z += 1  # Use the level above
+            break
+        else:
+            current_z -= 1  # Try one level lower
+    return current_z
+
 
 # ============================================================================
 # PHASE 1: Drop all bricks to their resting positions
 # ============================================================================
 
-for idx, brick in enumerate(sorted_bricks):
+for idx, brick in enumerate(sorted_bricks[0:]):
     # Check if brick is horizontal (same z-coordinate for both ends)
     if brick[0][2] == brick[1][2]:
         # Horizontal brick - can span multiple x,y positions at same z
-        
+        z = brick[1][2]
+
         # Generate all (x,y) positions this brick occupies
         brick_blox = []
         for x in range(brick[0][0], brick[1][0] + 1):
             for y in range(brick[0][1], brick[1][1] + 1):
                 brick_blox.append((x, y))
-        
-        # Find lowest z where this brick can rest
-        fits = True
-        N = max(block_map.keys()) + 1  # Start above all existing bricks
-        
-        # Test each z-level going downward
-        while fits:
-            if N == 0:  # Can't go below ground (z=1)
-                N = 1
-                break
-            
-            # Check if any block position is already occupied at level N
-            for cube in brick_blox:
-                if cube in block_map[N]:
-                    fits = False  # Collision detected
-                    N += 1  # Use the level above
-                    break
-            
-            if fits:
-                N -= 1  # Try one level lower
-        
-        # Place brick at level N
-        block_map[N] += brick_blox  # Mark (x,y) positions as occupied at this z
+
+        current_z = move_down_horizontal(brick)
+
+        # Place brick at current_z
+        brick_map[idx] = []
         for bb in brick_blox:
-            brick_map[idx].append((bb[0], bb[1], N))  # Record brick position
-            inv_brick_map[(bb[0], bb[1], N)] = idx  # Record reverse mapping
-    
+            brick_map[idx].append((bb[0], bb[1], current_z))  # Record brick position
+            inv_brick_map[(bb[0], bb[1], current_z)] = idx  # Record reverse mapping
     else:
         # Vertical brick - single (x,y) position, multiple z levels
-        
+
         xy_pos = (brick[0][0], brick[0][1])  # x,y position (same for all blocks)
         z_min = min([brick[0][2], brick[1][2]])
         z_max = max([brick[0][2], brick[1][2]])
-        
-        # Find lowest z where bottom of brick can rest
-        fits = True
-        N = max(block_map.keys()) + 1
-        
-        while fits:
-            if N == 0:
-                N = 1
-                break
-            
-            # Check if (x,y) position is occupied at level N
-            if xy_pos in block_map[N]:
-                fits = False
-                N += 1
-                break
-            
-            if fits:
-                N -= 1
-        
+
+        current_z = move_down_vertically(xy_pos)
+
         # Place vertical brick from level N to N + height
         brick_height = z_max - z_min + 1
-        for bb in range(N, N + brick_height):
+        brick_map[idx]= []
+        for bb in range(current_z, current_z + brick_height):
             brick_map[idx].append((xy_pos[0], xy_pos[1], bb))
             inv_brick_map[(xy_pos[0], xy_pos[1], bb)] = idx
-            block_map[bb].append(xy_pos)
 
-# ============================================================================
-# PHASE 2: Find which bricks can be safely disintegrated
-# ============================================================================
 
-# A brick can be removed if all bricks above it are supported by other bricks
+
+# # ============================================================================
+# # PHASE 2: Find which bricks can be safely disintegrated
+# # ============================================================================
+
+# # A brick can be removed if all bricks above it are supported by other bricks
 
 res = 0  # Count of safe-to-remove bricks
 
