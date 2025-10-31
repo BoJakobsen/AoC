@@ -1,3 +1,5 @@
+from collections import defaultdict  # Allows for not checking if a key exists
+
 # Extensive commented by claude.ai
 
 # Day 22: Falling sand bricks simulation
@@ -41,7 +43,7 @@ def highest_block():
 
 
 # Test for collision and find lowest possible position
-def move_down_horizontal(brick): 
+def move_down_horizontal(brick):
     current_z = highest_block() + 1
 
     # Test each z-level going downward
@@ -61,7 +63,7 @@ def move_down_vertically(xy_pos):
     # Test each z-level going downward
 
     while True:
-        has_collition = (*xy_pos, current_z) in inv_brick_map 
+        has_collition = (*xy_pos, current_z) in inv_brick_map
 
         if has_collition or current_z == 0:
             current_z += 1  # Use the level above
@@ -105,49 +107,44 @@ for idx, brick in enumerate(sorted_bricks[0:]):
 
         # Place vertical brick from level N to N + height
         brick_height = z_max - z_min + 1
-        brick_map[idx]= []
+        brick_map[idx] = []
         for bb in range(current_z, current_z + brick_height):
             brick_map[idx].append((xy_pos[0], xy_pos[1], bb))
             inv_brick_map[(xy_pos[0], xy_pos[1], bb)] = idx
 
 
+# # ============================================================================
+# # PHASE 2: Find which block supports which
+# # ============================================================================
+
+supporting = defaultdict(set)
+supported_by = defaultdict(set)
+
+for idx, brick in brick_map.items():
+    brick = brick_map[idx]  # Get all blocks of this brick
+    for block in brick:
+        # Check position one level above each block
+        test_block = (block[0], block[1], block[2] + 1)
+        if test_block in inv_brick_map and inv_brick_map[test_block] != idx:
+            supporting[idx].add(inv_brick_map[test_block])  # Different brick found above
+            supported_by[inv_brick_map[test_block]].add(idx)
+
 
 # # ============================================================================
-# # PHASE 2: Find which bricks can be safely disintegrated
+# # PHASE 3: Find which bricks can be safely disintegrated
 # # ============================================================================
 
 # # A brick can be removed if all bricks above it are supported by other bricks
 
 res = 0  # Count of safe-to-remove bricks
 
-for idx in range(len(sorted_bricks)):
-    brick = brick_map[idx]  # Get all blocks of this brick
-    
-    # Find all bricks directly above this one
-    above = set()
-    for block in brick:
-        # Check position one level above each block
-        test_block = (block[0], block[1], block[2] + 1)
-        if test_block in inv_brick_map and inv_brick_map[test_block] != idx:
-            above.add(inv_brick_map[test_block])  # Different brick found above
-    
-    # For each brick above, check if it has alternative support
+for idx in brick_map.keys():
+    supporting_bricks = supporting[idx]
     cnt_safe = 0
-    for ab_idx in above:
-        # Check all blocks of the brick above
-        for ab_block in brick_map[ab_idx]:
-            # Look one level below
-            test_block = (ab_block[0], ab_block[1], ab_block[2] - 1)
-            
-            # If there's a different brick below (not current, not itself)
-            if (test_block in inv_brick_map and 
-                inv_brick_map[test_block] != idx and 
-                inv_brick_map[test_block] != ab_idx):
-                cnt_safe += 1  # This brick above has alternative support
-                break
-    
-    # Safe to remove if all bricks above have alternative support
-    if cnt_safe == len(above) or len(above) == 0:
+    for brick_id in supporting_bricks:
+        if len(supported_by[brick_id]) > 1:
+            cnt_safe += 1
+    if cnt_safe == len(supporting_bricks) or len(supporting_bricks) == 0:
         res += 1
-
 print(res)
+
