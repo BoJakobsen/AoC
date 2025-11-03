@@ -36,12 +36,15 @@ def get_neighbors(maze, row, col):
     return neighbors
 
 
+
 def dfs(maze):
-    """Depth-First Search - finds a path (may not be shortest)"""
+    """Modified Depth-First Search, finds all paths.
+       Returns only the length of these paths. 
+    """
 
     path_lengths = []
     start = (l_start, c_start)
-    
+
     # Stack stores (current_position, path)
     stack = [(start, [start])]
 #    visited = set()
@@ -58,7 +61,7 @@ def dfs(maze):
             path_lengths.append(len(path))
 
         for neighbor in get_neighbors(maze, row, col):
-            if neighbor not in path:
+            if neighbor not in path:  # test if the point has been visited on this path
                 stack.append((neighbor, path + [neighbor]))  # append to list (at rightmost end)
 
     return path_lengths
@@ -66,7 +69,10 @@ def dfs(maze):
 
 p = dfs(map)
 
-print(max(p)-1)  # path is one longer then number of steps
+print(max(p)-1)  # path is one step longer then number of steps
+
+
+# only works if path is returned, as in standard DFS.
 
 # map_with_path = map.copy()
 # for step in p:
