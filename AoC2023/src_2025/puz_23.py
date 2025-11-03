@@ -1,5 +1,5 @@
-with open('../testdata/23_testdata.dat') as f:
-#with open('../data/23_data.dat') as f:
+#with open('../testdata/23_testdata.dat') as f:
+with open('../data/23_data.dat') as f:
     map=[x.strip() for x in f]
 # map[row][column]
 
@@ -39,39 +39,40 @@ def get_neighbors(maze, row, col):
 def dfs(maze):
     """Depth-First Search - finds a path (may not be shortest)"""
 
+    path_lengths = []
     start = (l_start, c_start)
     
     # Stack stores (current_position, path)
     stack = [(start, [start])]
-    visited = set()
+#    visited = set()
 
     while stack:
         (row, col), path = stack.pop()  # last item of list (Rightmost)
 
-        if (row, col) in visited:
-            continue
+#        if (row, col) in visited:
+#            continue
 
-        visited.add((row, col))
+#        visited.add((row, col))
 
         if (row, col) == (l_goal, c_goal):
-            return path
+            path_lengths.append(len(path))
 
         for neighbor in get_neighbors(maze, row, col):
-            if neighbor not in visited:
+            if neighbor not in path:
                 stack.append((neighbor, path + [neighbor]))  # append to list (at rightmost end)
 
-    return None  # No path found
+    return path_lengths
 
 
 p = dfs(map)
 
-print(len(p)-1)  # path is one longer then number of steps
+print(max(p)-1)  # path is one longer then number of steps
 
-map_with_path = map.copy()
-for step in p:
-    map_with_path[step[0]] = map_with_path[step[0]][:step[1]] + 'o' + map_with_path[step[0]][step[1]+1:]
+# map_with_path = map.copy()
+# for step in p:
+#     map_with_path[step[0]] = map_with_path[step[0]][:step[1]] + 'o' + map_with_path[step[0]][step[1]+1:]
 
 
 
-for line, orgline in zip(map_with_path,map):
-    print(line,orgline)
+# for line, orgline in zip(map_with_path,map):
+#     print(line,orgline)
