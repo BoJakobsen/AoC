@@ -1,10 +1,5 @@
-import sys
-from functools import cache
-
-sys.setrecursionlimit(1000000000)
-
-with open('../testdata/23_testdata.dat') as f:
-#with open('../data/23_data.dat') as f:
+#with open('../testdata/23_testdata.dat') as f:
+with open('../data/23_data.dat') as f:
     map=[x.strip() for x in f]
 # map[row][column]
 
@@ -45,35 +40,66 @@ def get_neighbors(row, col, maze = map, part = 'part1'):
 
 # nodes are dict, key: (row, col), value: [connected nodes]
 def find_nodes(map = map, part = 'part1'):
-    nodes = {}
+    nodes = {start : {}, goal : {}}
 
     # find all nodes
     for r in range(N_row):
         for c in range(N_column):
             if map[r][c] != '#':
                 if len(get_neighbors(r, c)) > 2:
-                    nodes[(r, c)] = []
+                    nodes[(r, c)] = {}
 
     # find connections between nodes, using a simple flood fill.
     for node in nodes:
-        queue = [node]
+        queue = [(node,0)]
         visited = set()
         while queue:
-            cur_node = queue.pop(0)
+            cur_node, cur_distance  = queue.pop(0)
             visited.add(cur_node)
             if cur_node in nodes and cur_node != node:  # we found a connected node
-                nodes[node].append(cur_node)
+                nodes[node][cur_node] = cur_distance
                 continue
             else:
                 neighbors = get_neighbors(*cur_node,map, part)
                 for neighb in neighbors:
                     if neighb not in visited:
-                        queue.append(neighb)
+                        queue.append((neighb,cur_distance + 1))
     return nodes
 
 nodes_part1 = find_nodes(map, 'part1')
 
 nodes_part2 = find_nodes(map, 'part2')
+
+
+# Realize that this does not build a DAG and hence topological sorting does not work
+# properly for part 1 but that is not the hard part
+# Back to drawing board
+
+# However as we now have compressed the maze to a graph with rather small
+# number of notes, it should be possible to sole using a simple DFS search.
+
+# reuse count path length from puz_23.py
+def dfs_nodes_longest_track(nodes, current=start, current_path=None):
+    if current_path is None:
+        current_path = ()
+
+    new_path = current_path + (current,) # nice way to append to tuple
+    if current == goal:
+        return 0
+
+    longest = -float('inf')
+    for neighbor in nodes[current].keys():
+        if neighbor not in new_path:  # Check that we are not going back to visited node
+            N = dfs_nodes_longest_track(nodes, neighbor, new_path)
+            if N != -float('inf'):
+                longest = max(longest, N+nodes[current][neighbor])
+    return longest
+
+
+
+# Part 1 and two can now be solved
+dfs_nodes_longest_track(nodes_part1)
+dfs_nodes_longest_track(nodes_part2) # still a bit slow
 
 
 
