@@ -7,7 +7,7 @@ import numpy
 # DATA LOADING (Used for both parts)
 # ============================================================================
 
-#with open('testdata/24_testdata.dat') as f:
+#with open('../testdata/24_testdata.dat') as f:
 with open('../data/24_data.dat') as f:
     lines = [x.strip() for x in f]
 
@@ -118,7 +118,87 @@ def part1():
 part1()
 
 # ============================================================================
-# PART 2 SETUP (Not used in Part 1 solution below)
+# PART 2: Find rock trajectory that hits all hailstones
 # ============================================================================
-# Setup symbolic algebra for finding rock trajectory that hits all hailstones
-# This approach sets up equations but isn't completed/used yet
+# Strategy: Set up system of 9 equations with 9 unknowns
+# - 6 unknowns: Rock's initial position (Xr) and velocity (Vr) in 3D
+# - 3 unknowns: Times (t[i]) when rock hits each of first 3 hailstones
+# 
+# For each hailstone i at time t[i]:
+# - Rock position: Xr + Vr * t[i]
+# - Hailstone position: coords[i] + vels[i] * t[i]
+# - These must be equal (collision)
+#
+# This gives 3 vector equations (x, y, z components) × 3 hailstones = 9 equations
+
+
+def part2():
+    Neq = 3  # Number of hailstones to use (gives 3 vector equations = 9 scalar equations)
+
+    # Define symbolic variables for unknowns
+    t = [sp.Symbol(f't{i}', positive=True) for i in range(Neq)]  # Collision times for each hailstone
+    Xr = [sp.Symbol(f'Xr{j}', positive=True) for j in range(3)]  # Rock's initial position (x, y, z)
+    Vr = [sp.Symbol(f'Vr{j}') for j in range(3)]  # Rock's velocity (vx, vy, vz)
+
+    # Collect all unknowns into single tuple for solver
+    unknowns = tuple(t + Xr + Vr)  # (t0, t1, t2, Xr0, Xr1, Xr2, Vr0, Vr1, Vr2)
+
+    # Generate equations: For each hailstone and each coordinate (x, y, z)
+    # Equation: hailstone_pos[i][j] + hailstone_vel[i][j]*t[i] = Xr[j] + Vr[j]*t[i]
+    # This says: "At time t[i], rock and hailstone i are at same position"
+    eqs = []
+    for i in range(Neq):  # For each of the 3 hailstones
+        for j in range(3):  # For each coordinate (x=0, y=1, z=2)
+            # Position of hailstone i at time t[i] equals position of rock at time t[i]
+            eqs.append(sp.Eq(coords[i][j] + vels[i][j]*t[i], Xr[j]+Vr[j]*t[i]))
+
+    # Solve the system of 9 equations in 9 unknowns
+    # Returns list of solution dictionaries
+    res = sp.solve(eqs, unknowns, dict=True)
+
+    # Calculate answer: sum of rock's initial x, y, z coordinates
+    res_part2 = 0
+    for i in range(3):
+        res_part2 += res[0][Xr[i]]  # res[0] = first (and only) solution
+
+    print(f"Part 2: {res_part2}")
+
+
+part2()
+
+
+# ============================================================================
+# PART 2, fully algebraic version (experimental - doesn't complete)
+# ============================================================================
+# This version keeps hailstone positions/velocities as symbolic variables
+# instead of substituting numerical values. More general but much slower.
+
+def part2_full_alg():
+    Neq = 3  # Number of equations
+
+    # Define symbolic variables for unknowns
+    t = [sp.Symbol(f't{i}', positive=True) for i in range(Neq)]  # Collision times for each hailstone
+    Xr = [sp.Symbol(f'Xr{j}', positive=True) for j in range(3)]  # Rock's initial position (x, y, z)
+    Vr = [sp.Symbol(f'Vr{j}') for j in range(3)]  # Rock's velocity (vx, vy, vz)
+
+    # Collect all unknowns into single tuple for solver
+    unknowns = tuple(t + Xr + Vr)  # (t0, t1, t2, Xr0, Xr1, Xr2, Vr0, Vr1, Vr2)
+
+    # Keep hailstone data as symbolic variables (not concrete numbers)
+    # Xh[i][j] = position of hailstone i, coordinate j
+    Xh = [[sp.Symbol(f'Xh{i}{j}', positive=True) for j in range(3)] for i in range(Neq)]
+    # Vh[i][j] = velocity of hailstone i, coordinate j
+    Vh = [[sp.Symbol(f'Vh{i}{j}') for j in range(3)] for i in range(Neq)]
+
+    # Generate equations with symbolic hailstone data
+    eqs = []
+    for i in range(Neq):
+        for j in range(3):
+            # Symbolic version: Xh and Vh are variables, not concrete values
+            eqs.append(sp.Eq(Xh[i][j] + Vh[i][j] * t[i], Xr[j] + Vr[j] * t[i]))
+
+    # Attempt to solve symbolically (warning: very slow/doesn't complete)
+    # This would give a general formula in terms of Xh and Vh
+    # res_alg = sp.solve(eqs, unknowns, dict=True)
+    # Note: Too computationally expensive - system is too complex for symbolic solution
+
