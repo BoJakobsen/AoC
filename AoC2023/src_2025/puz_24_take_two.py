@@ -136,8 +136,8 @@ def part2():
     Neq = 3  # Number of hailstones to use (gives 3 vector equations = 9 scalar equations)
 
     # Define symbolic variables for unknowns
-    t = [sp.Symbol(f't{i}', positive=True) for i in range(Neq)]  # Collision times for each hailstone
-    Xr = [sp.Symbol(f'Xr{j}', positive=True) for j in range(3)]  # Rock's initial position (x, y, z)
+    t = [sp.Symbol(f't{i}') for i in range(Neq)]  # Collision times for each hailstone
+    Xr = [sp.Symbol(f'Xr{j}') for j in range(3)]  # Rock's initial position (x, y, z)
     Vr = [sp.Symbol(f'Vr{j}') for j in range(3)]  # Rock's velocity (vx, vy, vz)
 
     # Collect all unknowns into single tuple for solver
