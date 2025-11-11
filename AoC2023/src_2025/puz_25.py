@@ -31,13 +31,17 @@ for name, connections in diagram.items():
 
 
 # ########################
-# Girvan-Newman algorithm
+# Solution 1: Girvan-Newman algorithm
 # ########################
-# is a possibility, as suggested by Claude.ai
+# Iteratively removes edges with highest betweenness centrality
+# to partition graph into communities
+#
+# suggested by Claude.ai
 # https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.community.centrality.girvan_newman.html#networkx.algorithms.community.centrality.girvan_newman
 
 comp = community.girvan_newman(G)
 
+# Find the partition with exactly 2 components
 desired_number = 2
 # Get partitions at each level
 partitions = []
@@ -47,11 +51,13 @@ for communities in comp:
         break
 
 
-# Check how many edges were removed
+# Verify we removed exactly 3 edges (problem requirement)
 edges_removed = len(G.edges()) - sum(len(G.subgraph(c).edges()) 
                                       for c in communities)
 print('Edge Removed : ', edges_removed)
 
+
+# Calculate product of component sizes
 res = 1
 for com in communities:
    res *= len(com)
@@ -59,11 +65,14 @@ print('Product of sizes: ', res)
 
 
 # ###########################
-# minimum_edge_cut
+# Solution 2: minimum_edge_cut
 # ###########################
-# can also be used
+# Directly finds minimum set of edges to disconnect the graph
+# More efficient than Girvan-Newman for this specific problem
+#
 # https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.connectivity.cuts.minimum_edge_cut.html
 # hyper-neutrino and Neil Thistlethwaite used this
+
 G.remove_edges_from(nx.minimum_edge_cut(G))
 a, b = nx.connected_components(G)
 print(len(a) * len(b))
