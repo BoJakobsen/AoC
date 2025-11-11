@@ -1,13 +1,13 @@
 import networkx as nx
 from networkx.algorithms import community
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 # load lines
 #with open('../testdata/25_testdata.dat') as f:
 with open('../data/25_data.dat') as f:
    lines = [x.strip() for x in f]
 
-# make dict for diagram 
+# make dict for diagram  (not really necessary, when using networkx)
 diagram = {}
 for line in lines:
     splited = line.split(': ')
@@ -26,9 +26,16 @@ for name, connections in diagram.items():
 # G.number_of_edges() #3266
 #
 # So a rather large dataset.
+# Looks like networkx is the answer most people goes to. 
 
 
-# Try, Girvan-Newman algorithm, as suggested by Claude.ai
+
+# ########################
+# Girvan-Newman algorithm
+# ########################
+# is a possibility, as suggested by Claude.ai
+# https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.community.centrality.girvan_newman.html#networkx.algorithms.community.centrality.girvan_newman
+
 comp = community.girvan_newman(G)
 
 desired_number = 2
@@ -51,8 +58,21 @@ for com in communities:
 print('Product of sizes: ', res)
 
 
+# ###########################
+# minimum_edge_cut
+# ###########################
+# can also be used
+# https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.connectivity.cuts.minimum_edge_cut.html
+# hyper-neutrino and Neil Thistlethwaite used this
+G.remove_edges_from(nx.minimum_edge_cut(G))
+a, b = nx.connected_components(G)
+print(len(a) * len(b))
 
 
+
+# #######################
+# Code for the test input.
+# #######################
 # Test removing the three edge from the description
 #G.remove_edge( 'hfx', 'pzl')
 #G.remove_edge( 'bvb', 'cmg')
