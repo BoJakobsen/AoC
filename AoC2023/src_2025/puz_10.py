@@ -18,14 +18,12 @@ dirs = {'N': (-1, 0), 'S': (1, 0), 'E': (0, 1), 'W': (0, -1)}
 
 
 def part1():
-
-    # count distance around the loop, tracking along the pipes.
-    visited = [] # set is much faster, but part 2 needs the list
+    # Tracking pipes for tracing the loop
+    visited = []  # set is much faster, but part 2 needs the list
     cur_pos = start
     while True:
         visited.append(cur_pos)
         pipe = grid[cur_pos[0]][cur_pos[1]]
-    #    print(cur_pos,pipe)
         for dir in pipes_connecting[pipe]:
             test_pos = (cur_pos[0] + dirs[dir][0], cur_pos[1] + dirs[dir][1])
             if len(visited) > 2 and test_pos == start:
@@ -50,27 +48,28 @@ def part1():
         if test_pos == start:
             break
 
-    # should be OK independent of even of uneven number of steps. 
+    # Max distance is now half the full round
+    # Should be OK independent of even of uneven number of steps.
     print(len(visited)/2)
     return visited
+
 
 # Solvepart one, and get the boundary
 boundery = part1()
 
-
-
 # For second part "S" needs to be changed to the correct
 # pipe,
 
-print(boundery[1])  # (61, 111), 7
-print(start)        # (62, 111)
-print(boundery[-1]) # (62, 110)  -
-# Which draws to : 
+print(boundery[1])   # (61, 111): 7
+print(start)         # (62, 111): S
+print(boundery[-1])  # (62, 110): -
+# Which can be drawn locally as :
+#
 #       7
 #      -S
-
-# so in this case S must be a North West : J
-# manually change the grid, now very nice
+#
+# so in this case S must be connecting North and West : J
+# manually change the grid, now very general
 grid[start[0]] = grid[start[0]].replace('S', 'J')
 
 # Convert list to set for speed
@@ -81,8 +80,8 @@ def part2():
     ins = set()
     # find points on the inside, by a Ray Cast method.
     Ninside = 0
-    for r in range(0,Nrow):
-        for c in range(1,Ncol-1):
+    for r in range(0, Nrow):
+        for c in range(1, Ncol-1):
             if (r, c) in boundery:
                 continue
             crossings = 0
@@ -90,8 +89,6 @@ def part2():
                 test_point = (r, c_test)
                 test_pipe = grid[r][c_test]
                 if test_point in boundery:
-                    #print(crossings)
-                    #print(test_point, test_pipe)
                     if test_pipe == '-':
                         continue
                     if (test_point[0], test_point[1]-1) not in boundery:
@@ -119,5 +116,6 @@ def part2():
 
     print(Ninside)
     return ins
+
 
 _ = part2()
