@@ -34,11 +34,13 @@ def find_plots(pos, N):
             plots = plots.union(res)
     return plots
 
-# Now we just run this and assert the length
-len(find_plots(start, 64))
 
-# Check stats of the cache
-find_plots.cache_info()
-# for Part 2: CacheInfo(hits=171605, misses=78104, maxsize=None, currsize=78104)
+def part1():
+    # Now we just run this and assert the length
+    print(len(find_plots(start, 64)))
 
+    # Check stats of the cache
+    find_plots.cache_info()
+    # for Part 2: CacheInfo(hits=171605, misses=78104, maxsize=None, currsize=78104)
 
+ part1()
