@@ -48,6 +48,11 @@ res = count_reac(64)
 print(res)
 
 
+# #########
+# Part 2
+# #########
+
+
 # Some numbers which are nice to know
 Target = 26501365
 Nblocks = Target // Nc # 202300
