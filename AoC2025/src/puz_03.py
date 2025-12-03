@@ -18,19 +18,31 @@ prob1Only()
 
 
 def prob(N):
+    """Find largest N-digit number preserving order from each bank."""
     res = 0
-    for bank in banks:  # Loop over the battery banks
-        nums = list(map(int, bank))  # Convert bank info to integers 
-        maxjol = [None] * N  # array for constructing largest possible joltage
-        lastidx = 0  # next index to include
-        for k in range(N):  # loop over requested number of digits
-            nums_part = nums[lastidx:len(nums)-(N-k)+1]  # extract usable part
-            maxjol[k] = max(nums_part)  # Find max number in usable part
-            lastidx = nums_part.index(maxjol[k])+1+lastidx  # Update index
-        res += int(''.join(map(str, maxjol)))  # convert back to number and add up
-    print('Max joltages for ', N, ' batteries: ', res)
+    for bank in banks:
+        nums = list(map(int, bank))
+        maxjol = []
+        start_idx = 0
+
+        for k in range(N):
+            # We need N-k more digits, so can only look at positions
+            # that leave enough remaining digits
+            end_idx = len(nums) - (N - k) + 1
+            chunk = nums[start_idx:end_idx]
+
+            # Greedily pick the largest digit in valid range
+            max_digit = max(chunk)
+            maxjol.append(max_digit)
+
+            # Next search starts after the chosen digit
+            start_idx = start_idx + chunk.index(max_digit) + 1
+
+        res += int(''.join(map(str, maxjol)))
+
+    print(f'Max joltages for {N} batteries: {res}')
 
 
-# Both parts can now be solved
+# Solve both parts
 prob(2)
 prob(12)
