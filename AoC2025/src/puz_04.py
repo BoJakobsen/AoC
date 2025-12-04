@@ -42,7 +42,7 @@ def part1():
 part1()
 
 # #######################
-# Part 2
+# Part 2 (with part 1 as sub-set)
 # #######################
 
 
@@ -76,9 +76,10 @@ def find_removable(rolls):
     return res, removable
 
 
-def part2():
+def part1_and_2():
     rolls = map_to_set(map)
     res, removable = find_removable(rolls)
+    print("Part 1: ", res)
     while len(removable) > 0:
         rolls = rolls - removable
         res_sub, removable = find_removable(rolls)
@@ -86,4 +87,4 @@ def part2():
     print("Part 2: ", res)
 
 
-part2()
+part1_and_2()
