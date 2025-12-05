@@ -49,7 +49,7 @@ def part2(fressIDranges):
     """Merge all overlapping ranges until no more merges possible.
 
     Key insight: iterate both forward and backward to catch fully overlapping ranges
-    where one range is completely inside another.
+    where one range is completely inside another. (help from a colleague)
     """
     newIDranges = meargeRanges(fressIDranges)
 
@@ -68,3 +68,31 @@ def part2(fressIDranges):
 
 
 part2(fressIDranges)
+
+
+
+def part2_sort(fressIDranges):
+    """Merge all overlapping ranges until no more merges possible.
+
+       Much easier, sort the list of ranges first. (Hint from Hyperneutrino)
+    """
+    
+    # Sorting ensures handeling of fully overlapping regions 
+    fressIDranges = sorted(fressIDranges)
+
+    # Initial merge
+    newIDranges = meargeRanges(fressIDranges)
+    # Keep merging until convergence (no changes between iterations)
+    while newIDranges != fressIDranges:
+        fressIDranges = newIDranges
+        newIDranges = meargeRanges(fressIDranges)
+
+    # Sum up the total coverage of all merged ranges
+    res = 0
+    for r in newIDranges:
+        res += r[1]-r[0]+1  # Count of IDs in this range (inclusive)
+    print('Part 2: ', res)
+
+
+part2_sort(fressIDranges)
+
