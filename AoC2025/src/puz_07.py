@@ -76,6 +76,12 @@ def part2():
 
 part2()
 
+# Get statistics from cache 
+stats = cnt_worlds.cache_info()
+print(f"Cache hits: {stats.hits}")
+print(f"Cache misses: {stats.misses}")
+print(f"Hit rate: {stats.hits / (stats.hits + stats.misses) * 100:.1f}%")
+
 
 # Simple stack-based DFS solution without memoization
 def part2_slow():
