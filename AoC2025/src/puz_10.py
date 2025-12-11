@@ -1,4 +1,4 @@
-from z3 import Optimize, Int
+from z3 import Optimize, Int, Solver
 from functools import cache
 from collections import deque 
 
@@ -8,98 +8,133 @@ with open('../data/10_data.dat') as f:
 
 
 def sw_to_num(sw):
+    """Convert list of bit positions to bitmask.
+    
+    Example: [0, 2, 3] -> 2^0 + 2^2 + 2^3 = 13 (binary: 1101)
+    This bitmask can be XORed with a state to toggle those bits.
+    """
     num = 0
     for bit in sw:
         num += 2**bit
     return num
 
-
-
 def part1():
-
-    # Unpacking is a bit evolved today, convert to base 10 number representation
-    # was only good for part 1
+    """Find minimum button presses to reach target patterns using BFS.
+    
+    Each button toggles specific bits (XOR operation).
+    Start from state 0 (all bits off), find shortest path to target.
+    """
+    # Parse input into binary representations
     targets = []
     switches = []
+    
     for line in lines:
-        targets.append(int(line[0][1:-1].replace('.','0').replace('#','1')[::-1],2))
-        sws = [sw[1:-1].split(',') for sw in  line[1:-1]]
-        switches.append([sw_to_num(list(map(int,sw)))  for sw in sws])
-
+        # Convert pattern like ".#.##" to binary number
+        # '.' = 0, '#' = 1, reversed because bit 0 is rightmost
+        # Example: ".#.##" -> "##.#." -> "11010" -> 26
+        targets.append(int(line[0][1:-1].replace('.','0').replace('#','1')[::-1], 2))
+        
+        # Convert button effects to bitmasks
+        # Each button has positions like "(0,2,3)"
+        sws = [sw[1:-1].split(',') for sw in line[1:-1]]
+        switches.append([sw_to_num(list(map(int, sw))) for sw in sws])
+    
     res = 0
+  
+    
+    # Solve each machine independently
     for target, switch in zip(targets, switches):
         queue = deque()
-        queue.append([0, 0])
+        queue.append([0, 0])  # [current_state, num_presses]
+        visited = set() # Forgot this in original solution, thanks Claude.ai
+
+        # BFS: explore states by increasing number of presses
         while queue:
             state, N = queue.popleft()
+            
             if state == target:
-                res += N
+                res += N  # Found shortest path
                 break
-
+            
+            # Try pressing each button
             for sw in switch:
-                queue.append([state ^ sw, N + 1])
-
+                new_state = state ^ sw 
+                if  new_state not in visited:
+                    queue.append([new_state, N + 1])  # XOR toggles bits
+                    visited.add(new_state)
+    
     print("Part 1: ", res)
 
-
 # part 1 is a bit slow, but reasonable
-#part1()
+part1()
 
 
-# Part 2 using Z3 solver
+# Part 2: Minimize total button presses to reach all targets
 def part2():
-    # need simpler data structure
-    targets = []
-    switches = []
-    for line in lines:
-        targets.append(list(map(int, line[-1][1:-1].split(','))))
-        sws = [sw[1:-1].split(',') for sw in line[1:-1]]
-        switches.append(tuple([(tuple(map(int, sw))) for sw in sws]))
+    """
+    For each machine, find minimum button presses needed.
+    Each button affects multiple positions when pressed.
+    Need all positions to reach exact target values.
+    """
+    # Parse input, for all machines
+    all_requirements = []  # Target values for each position
+    all_wiring_schematics = []  # Which positions each button affects
 
+    for line in lines:  # Elements are already split on groups (spaces)
+        # Last element:requirements  like "[5,3,7]"
+        all_requirements.append(list(map(int, line[-1][1:-1].split(','))))
+
+        # Middle elements: button effects like "(0,2)" "(1,3,4)"
+        sws = [sw[1:-1].split(',') for sw in line[1:-1]]
+        all_wiring_schematics.append(tuple([(tuple(map(int, sw))) for sw in sws]))
 
     res = 0
-    for target, switch in zip(targets, switches):
-        s = Optimize()
-        # s = Solver()
 
-        # generate the integer unknowns
-        alist = [Int('a%s' % i) for i in range(len(switch))]
+    # Solve each machine independently
+    for requirements, schematics in zip(all_requirements, all_wiring_schematics):
+        s = Optimize()  # Z3 optimizer (can minimize objectives)
+        # s = Solver()  # Basic solver (just finds feasible solution)
 
-        # add restrictions a > 0
+        # Create integer variable for each button (number of times pressed)
+        alist = [Int('a%s' % i) for i in range(len(schematics))]
+
+        # Constraint: all buttons pressed non-negative times
         for a in alist:
             s.add(a >= 0)
 
-        # setup the equations, one for each number in target.
-        eqs = [None]*len(target)
+        # Build equations: one per position in requirement
+        # eqs[i] will be the sum of button presses affecting position i
+        eqs = [None] * len(requirements)
 
-        # generate array of equations
-        for swidx, sw in enumerate(switch):
-            for idx in sw:
+        # For each button, add its contribution to affected positions
+        for buttom_idx, buttom_wiring in enumerate(schematics):
+            for idx in buttom_wiring:  # idx = position this button affects
                 if eqs[idx] is None:
-                    eqs[idx] = alist[swidx]
+                    eqs[idx] = alist[buttom_idx]  # First button affecting this position
                 else:
-                    eqs[idx] = eqs[idx] + alist[swidx]
+                    eqs[idx] = eqs[idx] + alist[buttom_idx]  # Add to existing
 
-        for idx, ta in enumerate(target):
-            eqs[idx] = eqs[idx] == ta
+        # Constraint: each position must equal its target value
+        for idx, requirement in enumerate(requirements):
+            eqs[idx] = eqs[idx] == requirement
 
+        # Add all equality constraints
         for eq in eqs:
             s.add(eq)
 
-        # we want a minimal solution
+        # Objective: minimize total button presses
         s.minimize(sum(alist))
 
-        # solve / minimize 
+        # Solve and extract solution
         s.check()
         f = s.model()
-        # sum the found coefficients
+
+        # Sum button presses for this machine
         res += (sum([f[a].as_long() for a in alist]))
 
-    print(res)
-
+    print("Part 2: ", res)
 
 part2()
-
 
 # Not working solutions
 
