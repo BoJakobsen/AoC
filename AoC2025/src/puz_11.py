@@ -17,8 +17,10 @@ for line in lines:
         G.add_edge(node, con)
 
 #  Part 1 using networkx
-#print('Part 1: ', len(list(nx.all_simple_paths(G, 'you', 'out', cutoff=None))))
+print('Part 1: ', len(list(nx.all_simple_paths(G, 'you', 'out', cutoff=None))))
 
+
+## Part 2
 # we are looking for
 # svr -> fft -> dac -> out 
 
@@ -33,7 +35,7 @@ for line in lines:
 
 
 # Recursive solution using cache
-# Just using the networkX G as data structure.
+# Using the networkX G as data structure.
 @cache 
 def find_N_paths(state, target):
     if state == target:
@@ -45,7 +47,42 @@ def find_N_paths(state, target):
 
 
 # Part 1 again for test
-print("Part 1: ", find_N_paths('you','out'))
+print("Part 1: ", find_N_paths('you', 'out'))
 
 # Part 2
-print("Part 2:",  find_N_paths('svr','fft') * find_N_paths('fft','dac') * find_N_paths('dac','out'))
+print("Part 2:",  find_N_paths('svr', 'fft') *
+      find_N_paths('fft', 'dac') * find_N_paths('dac', 'out'))
+
+
+# After running your function
+stats = find_N_paths.cache_info()
+
+# Or formatted nicely:
+print(f"Cache hits: {stats.hits}")  # 1962
+print(f"Cache misses: {stats.misses}")  # 1147
+print(f"Hit rate: {stats.hits / (stats.hits + stats.misses) * 100:.1f}%")  # 63.1%
+
+
+# A manual cache version
+# Recursive solution using manual cache
+my_cache = {}
+
+
+def find_N_paths_mycache(state, target):
+    if state == target:
+        return 1
+    if state in my_cache:
+        return my_cache[state]
+    N_tot = 0
+    for node in G.successors(state):
+        N_tot += find_N_paths(node,target)
+    my_cache[state] = N_tot
+    return N_tot
+
+
+# Part 1 again for test
+print("Part 1: ", find_N_paths_mycache('you', 'out'))
+
+# Part 2
+print("Part 2:",  find_N_paths_mycache('svr', 'fft')
+      * find_N_paths('fft', 'dac') * find_N_paths('dac', 'out'))
