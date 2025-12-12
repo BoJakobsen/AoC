@@ -14,8 +14,9 @@ def part1():
     arears = []
     kk = 0
     for kk in range(len(rtiles)):
-        for ll in range(kk-1,len(rtiles)):
-            arears.append([calc_area(rtiles[kk], rtiles[ll]), rtiles[kk], rtiles[ll]])
+        for ll in range(kk-1, len(rtiles)):
+            arears.append([calc_area(rtiles[kk],
+                                     rtiles[ll]), rtiles[kk], rtiles[ll]])
 
     print('Part 1: ', max(arears)[0])
 
@@ -24,8 +25,8 @@ part1()
 
 
 # map all edges
-v_edges = defaultdict(list) 
-h_edges = defaultdict(list) 
+v_edges = defaultdict(list)
+h_edges = defaultdict(list)
 last_tile = rtiles[-1]
 for tile in rtiles:
     if last_tile[0] == tile[0]:  # vertical edge
