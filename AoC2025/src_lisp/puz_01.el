@@ -4,6 +4,8 @@
 ;; Without it, closures and `let' scoping would behave the old (dynamic) way.
 
 
+(require 'cl-lib)
+
 (defun puz-load (path)
   "Read PATH into a fresh `*puz-scratch*' buffer."
   ;; `get-buffer-create' returns the buffer if it exists, makes it if not.
@@ -43,7 +45,7 @@ Each line of input must look like \"L68\" or \"R5\"."
 
 ;; (puz-parse)  ; eval with C-x C-e to inspect parsed output
 
-
+;; dolist version
 (defun puz-solve-part1 (pairs)
   "Solve Part 1: count how many times the dial ends a move on position 0.
 
@@ -68,9 +70,36 @@ The puzzle counts every instruction whose ending position is exactly 0."
     zeros))
 
 
-(message "Solution for part 1 is = %S" (puz-solve-part1  (puz-parse)))
+(message "Solution dolist for part 1 is = %S" (puz-solve-part1  (puz-parse)))
+
+(defun puz-solve-part1-loop (pairs)
+  "Solve part 1: using cl-loop"
+  (cl-loop with pos = 50
+           for p in pairs
+           for dir = (if (= (car p) ?R) #'+ #'-)
+           for turn = (cdr p)
+           do (setq pos (mod (funcall dir pos turn) 100))
+           count (= pos 0)))
+
+(message "Solution loop for part 1 is = %S" (puz-solve-part1-loop  (puz-parse)))
+
+
+(defun puz-solve-part1-reduce (pairs)
+  "Solve part 1: using seq-reduce"
+  (seq-reduce
+   (lambda (state p)
+     (let* ((pos (car state))
+            (cnt (cdr state))
+            (dir (if (= (car p) ?R) #'+ #'-))
+            (turn (cdr p))
+            (pos (mod (funcall dir pos turn) 100))
+            (cnt (if (= pos 0) (+ cnt 1) cnt)))
+       (cons pos cnt)))
+   pairs
+   (cons 50 0)))
+
+
+(message "Solution reduce for part 1 is = %S" (cdr (puz-solve-part1-reduce  (puz-parse))))
+
 
 ;;; puz_01.el ends here
-
-
-
