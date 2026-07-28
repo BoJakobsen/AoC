@@ -2,8 +2,8 @@ from z3 import Optimize, Int, Solver
 from functools import cache
 from collections import deque 
 
-#with open('../data/10_testdata.dat') as f:
-with open('../data/10_data.dat') as f:
+with open('../data/10_problem.dat') as f:
+#with open('../data/10_data.dat') as f:
     lines = [x.strip().split() for x in f]
 
 
@@ -127,8 +127,8 @@ def part2():
 
         # Solve and extract solution
         s.check()
+        print(s)
         f = s.model()
-
         # Sum button presses for this machine
         res += (sum([f[a].as_long() for a in alist]))
 
