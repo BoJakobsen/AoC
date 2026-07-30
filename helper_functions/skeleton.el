@@ -8,7 +8,7 @@
                    (or load-file-name buffer-file-name))))
 
 ;; Reset all AOC (puz- name-space) and unload aoc-functions
-;(puz-reset)
+;;(puz-reset)
 
 ;; Requires the functions from aoc-functions.el
 (require 'aoc-functions) ; REMEMBER this does not reload changes from the file
@@ -18,17 +18,17 @@
 
 ;; For problem specific parser
 (defun puz-parse ()
-  "Parse `*puz-scratch*' "
+  "Parse `*puz-scratch*'."
   (with-current-buffer "*puz-scratch*"
     (let ((parsed nil))
       ( 
          )
       parsed)))
 
-;;(puz-parse)  ; veal with C-x C-e to inspect parsed output
+;;(puz-parse)  ; eval with C-x C-e to inspect parsed output
 
 ;; For grid problem 
-; (puz-grid-init); sets puz-grid-n-cols, puz-grid-n-rows, puz-grid-offsets (8- nab)
+; (puz-grid-init)  ; sets puz-grid-n-cols, puz-grid-n-rows, puz-grid-offsets (8- nab)
 
 (defun puz-solve-part1 (parsed)
   "Solve Part 1"
@@ -38,4 +38,4 @@
        )
       res)))
 
-(message "Solution for part 1 is = %d" (puz-solve-part1  (puz-parse)))
+(message "Solution for part 1 is = %S" (puz-solve-part1  (puz-parse)))
