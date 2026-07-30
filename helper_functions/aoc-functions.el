@@ -1,7 +1,7 @@
-;;; aoc-functions.el --- Advent of Code functions  -*- lexical-binding: t; -*-
+;;; aoc-functions.el --- Advent of Code functions (boj@boj.dk)  -*- lexical-binding: t; -*-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Some requirements
+;; Requirements
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (require 'cl-lib)
@@ -64,6 +64,7 @@
   "Unbind every symbol whose name starts with \"puz-\".
 Wipes both variable values and function definitions."
   (interactive)
+  (unload-feature 'aoc-functions t)
   (let ((count 0))
     (mapatoms
      (lambda (sym)
@@ -71,3 +72,7 @@ Wipes both variable values and function definitions."
          (when (boundp sym)  (makunbound sym)  (cl-incf count))
          (when (fboundp sym) (fmakunbound sym) (cl-incf count)))))
     (message "Unbound %d puz- bindings" count)))
+
+
+(provide 'aoc-functions)
+;;; aoc-functions.el ends here

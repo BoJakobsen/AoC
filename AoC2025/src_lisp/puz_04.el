@@ -1,10 +1,16 @@
 ;;; puz_04_take2.el --- AOC 2025 Day 4 second try -*- lexical-binding: t; -*-
 
+;; add the AOC local helper function dir to the path
+(add-to-list 'load-path
+             (expand-file-name "../../helper_functions"
+                  (file-name-directory
+                   (or load-file-name buffer-file-name))))
+
 ;; Requires the functions from aoc-functions.el
+(require 'aoc-functions) ; REMEMBER this does not reload changes from the file
 
-
-(puz-load "../data/04_data.dat")
-(puz-grid-init)
+(puz-load "../data/04_data.dat"); Load data into *puz-scratch* buffer
+(puz-grid-init); sets puz-grid-n-cols, puz-grid-n-rows, puz-grid-offsets (8- nab)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Version using rectangle logic, rather slow
