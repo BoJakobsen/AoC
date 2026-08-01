@@ -1,4 +1,4 @@
-;;; puz_04_take2.el --- AOC 2025 Day 4 second try -*- lexical-binding: t; -*-
+;;; puz_04.el --- AOC 2025 Day 4 different versions -*- lexical-binding: t; -*-
 
 ;; add the AOC local helper function dir to the path
 (add-to-list 'load-path
@@ -11,6 +11,8 @@
 
 (puz-load "../data/04_data.dat"); Load data into *puz-scratch* buffer
 (puz-grid-init); sets puz-grid-n-cols, puz-grid-n-rows, puz-grid-offsets (8- nab)
+
+;;; Part 1
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Version using rectangle logic, rather slow
@@ -129,6 +131,105 @@ handles boundaries"
 ;; (5.054557688 0 0.0) (10 RUNS)
 
 
+;;; Part 2
 
+
+
+(defun puz-replace-after (pos char)
+  "Replaces the character after POS with CHAR in current buffer."
+  (goto-char pos)
+  (delete-char 1)
+  (insert-char char))
+
+(defun puz-remove-rolls ()
+  "Remove rolls (@) with less than 4 rolls around it. Return number of removed rolls."
+  (with-current-buffer "*puz-scratch*"
+    (let ((pos (point-min))
+          (acc 0)
+          )
+      (while (< pos (point-max))
+        (when (eq (char-after pos) ?@)
+          (when (< (puz-grid-count-nab pos ?@ ?X) 4)
+            (puz-replace-after pos ?X)
+            (cl-incf acc)))
+        (cl-incf pos))
+      (goto-char (point-min))
+      (subst-char-in-region (point-min) (point-max) ?X ?. t)
+      acc)))
+
+
+(defun puz-solve-part2a ()
+  "Solve part 2. Modifies the '*puz-scratch* buffer."
+    (with-current-buffer "*puz-scratch*"
+      (let ((buffer-undo-list t) ;disable undo tracking for speed
+            (acc 0)
+            )
+        (while (< 0 (setq removed (puz-remove-rolls)))
+          (setq acc (+ acc removed)))
+        acc)))
+
+(puz-load "../data/04_data.dat")
+(message "Solution a for part 2 is = %S" (puz-solve-part2a))
+
+(defun puz-grid-vec-count-nab (pos v &rest targets)
+  "Counts number of TARGET charters among the neighbors to POS in vector V representation of grid."
+    (let ((acc 0))
+      (dolist (offset puz-grid-offsets)
+        (when (and (<= 0 (+ pos offset)) (< (+ pos offset) (length grid))
+                   (memq (aref v (+ pos offset))  targets))
+          (cl-incf acc)))
+      acc))
+
+;; For test solve part 1 ones more for control of vector mechanism
+(defun puz-solve-part1e ()
+  "Solve part 1 (again)."
+    (with-current-buffer "*puz-scratch*"
+      (let ((grid (vconcat (buffer-string))) ; full buffer as an array
+            (acc 0)
+            (pos 0))
+        (while (< pos (length grid))
+          (when (eq (aref grid pos) ?@)
+            (when (< (puz-grid-vec-count-nab pos grid ?@) 4)
+              (cl-incf acc)))
+          (cl-incf pos))
+        acc)))
+
+(puz-load "../data/04_data.dat")
+(message "Solution e for part 1 is = %S" (puz-solve-part1e))
+
+(defun puz-remove-rolls-vec (grid)
+  "Remove rolls (@) with less than 4 rolls around it from GRID (vec rep of grid prblem)."
+    (let ((pos 0)
+          (new-grid (copy-sequence grid)) 
+          )
+      (while (< pos (length grid))
+        (when (eq (aref grid pos) ?@)
+          (when (< (puz-grid-vec-count-nab pos grid ?@) 4)
+            (aset new-grid pos ?.))
+        (cl-incf pos))
+      new-grid))
+
+(defun puz-solve-part2b ()
+  "Solve part 2."
+    (with-current-buffer "*puz-scratch*"
+      (let* ((grid (vconcat (buffer-string)))
+            (n-rolls-initial (cl-count ?@ grid))
+            (n-rolls n-rolls-initial)
+            )
+        (while (> n-rolls (setq n-rolls (cl-count ?@ (setq grid (puz-remove-rolls-vec grid))))
+                  ))
+        (- n-rolls-initial n-rolls))))
+
+(puz-load "../data/04_data.dat")
+(message "Solution b for part 2 is = %S" (puz-solve-part2b))
+
+
+(puz-load "../data/04_data.dat")
+(benchmark-run 1 (puz-solve-part2a))
+;;(17.199423175 2 0.6481852000000003) (1 RUN)
+
+(puz-load "../data/04_data.dat")
+(benchmark-run 1 (puz-solve-part2b))
+;; (24.474821057 2 0.647141916999999) (1 RUN)
 
 
