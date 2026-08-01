@@ -12,11 +12,7 @@
 (puz-load "../data/04_data.dat"); Load data into *puz-scratch* buffer
 (puz-grid-init); sets puz-grid-n-cols, puz-grid-n-rows, puz-grid-offsets (8- nab)
 
-;;; Part 1
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Version using rectangle logic, rather slow
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Part 1. Version using rectangle logic, rather slow
 
 ;; based on snippet from web
 (defun puz-count-in-rectangle (char)
@@ -60,9 +56,8 @@ handles boundaries"
 
 (message "Solution a for part 1 is = %S" (puz-solve-part1a))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Version using search-forward, and puz-grid-get-nab
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;; Part 1. Version using search-forward, and puz-grid-get-nab
 
 ;; Version using search and get-nab function
 (defun puz-solve-part1b ()
@@ -77,9 +72,8 @@ handles boundaries"
 
 (message "Solution b for part 1 is = %S" (puz-solve-part1b))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Version treating buffer as array
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;; Part 1. Version treating buffer as array
 
 ;; uses faster count and does not use search-forward
 (defun puz-solve-part1c ()
@@ -99,9 +93,8 @@ handles boundaries"
 (message "Solution c for part 1 is = %S" (puz-solve-part1c))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Version using the cl-loop magic
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;; Part 1. Version using the cl-loop magic
 
 (defun puz-solve-part1d ()
   "Solve Part 1, count number of rolls (@) with less than 4 rolls around it"
@@ -114,26 +107,9 @@ handles boundaries"
 
 (message "Solution d for part 1 is = %S" (puz-solve-part1d))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Benchmark versions
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(benchmark-run 1 (puz-solve-part1a))
-;;(20.631744597 1 0.282676994) (1 RUN)
-
-(benchmark-run 10 (puz-solve-part1b))
-;; (5.552760011 1 0.28712363100000005) (10 RUNS)
-
-(benchmark-run 10 (puz-solve-part1c))
-;; (5.354362332 1 0.29195927499999996) (10 RUNS)
-
-(benchmark-run 10 (puz-solve-part1d))
-;; (5.054557688 0 0.0) (10 RUNS)
 
 
-;;; Part 2
-
-
+;;; For Part 2. Version that in-place modifies the buffer
 
 (defun puz-replace-after (pos char)
   "Replaces the character after POS with CHAR in current buffer."
@@ -145,8 +121,7 @@ handles boundaries"
   "Remove rolls (@) with less than 4 rolls around it. Return number of removed rolls."
   (with-current-buffer "*puz-scratch*"
     (let ((pos (point-min))
-          (acc 0)
-          )
+          (acc 0))
       (while (< pos (point-max))
         (when (eq (char-after pos) ?@)
           (when (< (puz-grid-count-nab pos ?@ ?X) 4)
@@ -162,21 +137,23 @@ handles boundaries"
   "Solve part 2. Modifies the '*puz-scratch* buffer."
     (with-current-buffer "*puz-scratch*"
       (let ((buffer-undo-list t) ;disable undo tracking for speed
-            (acc 0)
-            )
+            (acc 0))
         (while (< 0 (setq removed (puz-remove-rolls)))
           (setq acc (+ acc removed)))
         acc)))
 
-(puz-load "../data/04_data.dat")
 (message "Solution a for part 2 is = %S" (puz-solve-part2a))
+(puz-load "../data/04_data.dat"); Reload dataset
 
-(defun puz-grid-vec-count-nab (pos v &rest targets)
-  "Counts number of TARGET charters among the neighbors to POS in vector V representation of grid."
-    (let ((acc 0))
+;;; Treat buffer as vector, part one and two.
+
+(defun puz-grid-vec-count-nab (pos vgrid &rest targets)
+  "Counts number of TARGET charters among the neighbors to POS in vector VGRID representation of grid."
+  (let ((acc 0)
+        (n-points (length vgrid)))
       (dolist (offset puz-grid-offsets)
-        (when (and (<= 0 (+ pos offset)) (< (+ pos offset) (length grid))
-                   (memq (aref v (+ pos offset))  targets))
+        (when (and (<= 0 (+ pos offset)) (< (+ pos offset) n-points)
+                   (memq (aref vgrid (+ pos offset))  targets))
           (cl-incf acc)))
       acc))
 
@@ -184,10 +161,11 @@ handles boundaries"
 (defun puz-solve-part1e ()
   "Solve part 1 (again)."
     (with-current-buffer "*puz-scratch*"
-      (let ((grid (vconcat (buffer-string))) ; full buffer as an array
+      (let* ((grid (vconcat (buffer-string))) ; full buffer as an array
             (acc 0)
-            (pos 0))
-        (while (< pos (length grid))
+            (pos 0)
+            (n-points (length grid)))
+        (while (< pos n-points)
           (when (eq (aref grid pos) ?@)
             (when (< (puz-grid-vec-count-nab pos grid ?@) 4)
               (cl-incf acc)))
@@ -197,39 +175,65 @@ handles boundaries"
 (puz-load "../data/04_data.dat")
 (message "Solution e for part 1 is = %S" (puz-solve-part1e))
 
-(defun puz-remove-rolls-vec (grid)
-  "Remove rolls (@) with less than 4 rolls around it from GRID (vec rep of grid prblem)."
+(defun puz-remove-rolls-vec (vgrid)
+  "Remove rolls (@) with less than 4 rolls around it from VGRID (vec rep of grid prblem)."
     (let ((pos 0)
-          (new-grid (copy-sequence grid)) 
-          )
-      (while (< pos (length grid))
-        (when (eq (aref grid pos) ?@)
-          (when (< (puz-grid-vec-count-nab pos grid ?@) 4)
-            (aset new-grid pos ?.))
+          (n-points (length vgrid))
+          (n-removed 0))
+      (while (< pos n-points)
+        (when (eq (aref vgrid pos) ?@)
+          (when (< (puz-grid-vec-count-nab pos vgrid ?@ ?X) 4)
+            (aset vgrid pos ?X)
+            (cl-incf n-removed)))
         (cl-incf pos))
-      new-grid))
+      (setq pos 0)
+      (while (< pos n-points)
+        (when (eq (aref vgrid pos) ?X) (aset vgrid pos ?.))
+        (cl-incf pos))
+      (cons n-removed vgrid)))
 
 (defun puz-solve-part2b ()
   "Solve part 2."
     (with-current-buffer "*puz-scratch*"
       (let* ((grid (vconcat (buffer-string)))
-            (n-rolls-initial (cl-count ?@ grid))
-            (n-rolls n-rolls-initial)
-            )
-        (while (> n-rolls (setq n-rolls (cl-count ?@ (setq grid (puz-remove-rolls-vec grid))))
-                  ))
-        (- n-rolls-initial n-rolls))))
+            (reslist (puz-remove-rolls-vec grid))
+            (grid (cdr reslist))
+            (n-removed (car reslist))
+            (acc n-removed))
+        (while (< 0 n-removed)
+          (setq reslist (puz-remove-rolls-vec grid))
+          (setq grid (cdr reslist))
+          (setq n-removed (car reslist))
+          (setq acc (+ acc n-removed)))
+        acc)))
 
 (puz-load "../data/04_data.dat")
 (message "Solution b for part 2 is = %S" (puz-solve-part2b))
 
 
-(puz-load "../data/04_data.dat")
+;; Benchmark versions
+
+(benchmark-run 1 (puz-solve-part1a))
+;;(20.631744597 1 0.282676994) (1 RUN)
+
+(benchmark-run 10 (puz-solve-part1b))
+;; (5.552760011 1 0.28712363100000005) (10 RUNS)
+
+(benchmark-run 10 (puz-solve-part1c))
+;; (5.354362332 1 0.29195927499999996) (10 RUNS)
+
+(benchmark-run 10 (puz-solve-part1d))
+;; (5.054557688 0 0.0) (10 RUNS)
+
+(benchmark-run 10 (puz-solve-part1e))
+;;  (10 RUNS)
+
 (benchmark-run 1 (puz-solve-part2a))
 ;;(17.199423175 2 0.6481852000000003) (1 RUN)
+(puz-load "../data/04_data.dat") ; reload
 
-(puz-load "../data/04_data.dat")
 (benchmark-run 1 (puz-solve-part2b))
 ;; (24.474821057 2 0.647141916999999) (1 RUN)
+;; (26.361648776 2 0.6519366610000006)
 
 
