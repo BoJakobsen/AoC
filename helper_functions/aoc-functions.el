@@ -4,11 +4,17 @@
 ;; Requirements
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+
+;;; Commentary:
+;; 
+
 (require 'cl-lib)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Loader functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;; Code:
 
 (defun puz-load (path)
   "Read PATH into a fresh *puz-scratch* buffer."
@@ -23,12 +29,12 @@
 ;; For grid based puzzles
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defvar puz-grid-n-cols nil "Width of the current puzzle grid (chars)" )
-(defvar puz-grid-n-rows nil "Height of the current puzzle grid (lines)" )
-(defvar puz-grid-offsets nil "Precomputed 8-neighbor buffer offsets" )
+(defvar puz-grid-n-cols nil "Width of the current puzzle grid (chars)." )
+(defvar puz-grid-n-rows nil "Height of the current puzzle grid (lines)." )
+(defvar puz-grid-offsets nil "Precomputed 8-neighbor buffer offsets." )
 
 (defun puz-grid-init ()
-  "Measures the grid size in *puz-scratch* and pre-computes 8-neighbor offsets"
+  "Measures the grid size in *puz-scratch* and pre-computes 8-neighbor offsets."
   (with-current-buffer "*puz-scratch*"
     (goto-char (point-min))
     (setq puz-grid-n-cols (- (line-end-position) (line-beginning-position)))
@@ -41,18 +47,18 @@
   (message "Grid size. n-cols: %d, n-rows: %d" puz-grid-n-cols puz-grid-n-rows))
 
 (defun puz-grid-get-nab (pos)
-  "Returns the 8 nabours at the given point, in the current buffer"
+  "Return the 8 nabours at the point POS, in the current buffer."
     (let ((chars))
       (dolist (offset puz-grid-offsets)
         (push (char-after (+ pos offset))  chars))
       (nreverse chars)))
 
 ;; Does not generate an list of the chars
-(defun puz-grid-count-nab (pos target)
-  "Counts number of TARGET charters among the neighbors to POS"
+(defun puz-grid-count-nab (pos &rest target)
+  "Counts number of TARGET charters among the neighbors to POS."
     (let ((acc 0))
       (dolist (offset puz-grid-offsets)
-        (when (eq target (char-after (+ pos offset)))
+        (when (memq (char-after (+ pos offset))  target)
           (cl-incf acc)))
       acc))
 
@@ -61,7 +67,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun puz-reset ()
-  "Unbind every symbol whose name starts with \"puz-\".
+  "Unbind every symbol whose name start with \"puz-\".
 Wipes both variable values and function definitions."
   (interactive)
   (unload-feature 'aoc-functions t)
