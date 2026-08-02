@@ -282,7 +282,12 @@ handles boundaries"
 ;; (28.857028315999997 2 0.6607209900000015), all simpel optimizations
 ;; (26.232449491 3 0.9872318259999986) ; with removed rols list
 ;; (259.493045326 23 7.595535119000004) ; 10 RUNS, all optimized
+;; (21.287607517 0 0.0) ; 10 RUNS, byte compiled
 
+
+;; we need byte compiling
+(mapc #'byte-compile
+      '(puz-grid-vec-count-nab2 puz-remove-rolls-vec2 puz-solve-part2c))
 
 
 ;; Try to benchmark part 2 to see if it can be faster
