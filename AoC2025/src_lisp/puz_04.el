@@ -211,6 +211,48 @@ handles boundaries"
 (message "Solution b for part 2 is = %S" (puz-solve-part2b))
 
 
+;; Try to do some optimizations
+
+(defun puz-grid-vec-count-nab2 (pos vgrid target1 target2)
+  "Counts number of TARGET1 and TARGET2 charters among the neighbors to POS in vector VGRID representation of grid."
+  (let ((acc 0))
+      (dolist (offset puz-grid-offsets)
+        (when (and (<= 0 (+ pos offset)) (< (+ pos offset) (length vgrid))
+                   (or (eq target1 (aref vgrid (+ pos offset))) (eq target2 (aref vgrid (+ pos offset)))))
+          (cl-incf acc)))
+      acc))
+
+;In-place modify vgrid, and keep track of places where a roll is removed
+(defun puz-remove-rolls-vec2 (vgrid)
+  "In place removes rolls (@) with less than 4 rolls around it from VGRID (vec rep of grid problem)."
+    (let ((pos 0)
+          (n-points (length vgrid))
+          (n-removed 0)
+          (pos-removed ()))
+      (while (< pos n-points)
+        (when (eq (aref vgrid pos) ?@)
+          (when (< (puz-grid-vec-count-nab2 pos vgrid ?@ ?X) 4)
+            (aset vgrid pos ?X)
+            (push pos pos-removed)
+            (cl-incf n-removed)))
+        (cl-incf pos))
+      (dolist (pos pos-removed)
+        (aset vgrid pos ?.))
+      n-removed))
+
+(defun puz-solve-part2c ()
+  "Solve part 2."
+  (let* ((grid (with-current-buffer "*puz-scratch*" (vconcat (buffer-string))))
+         (n-removed (puz-remove-rolls-vec2 grid))            
+         (acc n-removed))
+    (while (< 0 n-removed)
+      (setq n-removed (puz-remove-rolls-vec2 grid))
+      (setq acc (+ acc n-removed)))
+    acc))
+
+(puz-load "../data/04_data.dat")
+(message "Solution c for part 2 is = %S" (puz-solve-part2c))
+
 ;; Benchmark versions
 
 (benchmark-run 1 (puz-solve-part1a))
@@ -236,4 +278,79 @@ handles boundaries"
 ;; (24.474821057 2 0.647141916999999) (1 RUN)
 ;; (26.361648776 2 0.6519366610000006)
 
+(benchmark-run 10 (puz-solve-part2c))
+;; (28.857028315999997 2 0.6607209900000015), all simpel optimizations
+;; (26.232449491 3 0.9872318259999986) ; with removed rols list
+;; (259.493045326 23 7.595535119000004) ; 10 RUNS, all optimized
 
+
+
+;; Try to benchmark part 2 to see if it can be faster
+(progn 
+  (profiler-start 'cpu)
+  (dotimes (_ 5)
+          (puz-solve-part2c))
+  (profiler-stop)
+  (profiler-report))
+
+      ;; 128990  97% - command-execute
+      ;; 128990  97%  - funcall-interactively
+      ;; 128990  97%   - eval-defun
+      ;; 128990  97%    - apply
+      ;; 128990  97%     - edebug--eval-defun
+      ;; 128990  97%      - #<native-comp-function eval-defun>
+      ;; 128990  97%       - #<native-comp-function F616e6f6e796d6f75732d6c616d626461_anonymous_lambda_38>
+      ;; 128990  97%        - elisp--eval-defun
+      ;; 128990  97%         - setq
+      ;; 128990  97%          - let
+      ;; 128990  97%           - progn
+      ;; 128990  97%            - progn
+      ;; 128989  97%             - let
+      ;; 128989  97%              - while
+      ;; 128989  97%               - let
+      ;; 128989  97%                - puz-solve-part2c
+      ;; 128989  97%                 - let*
+      ;; 126363  95%                  - while
+      ;; 126360  95%                   - setq
+      ;; 126358  95%                    - puz-remove-rolls-vec2
+      ;; 126358  95%                     - let
+      ;; 126252  95%                      - while
+      ;; 116947  88%                       - if
+      ;; 109526  82%                        - progn
+      ;; 109188  82%                         - if
+      ;; 108704  81%                          - <
+      ;; 108142  81%                           - puz-grid-vec-count-nab2
+      ;; 105352  79%                            - let
+      ;; 103400  77%                             - let
+      ;; 101467  76%                              - while
+      ;;  98764  74%                               - let
+      ;;  71720  54%                                - if
+      ;;  60207  45%                                 - and
+      ;;  28078  21%                                  - or
+      ;;  25050  18%                                   - eq
+      ;;  17303  13%                                    - aref
+      ;;   8953   6%                                       +
+      ;;  15818  11%                                  - <
+      ;;   6567   4%                                     +
+      ;;   4669   3%                                     length
+      ;;  11234   8%                                  - <=
+      ;;   7051   5%                                     +
+      ;;   7492   5%                                 - progn
+      ;;   5718   4%                                  - setq
+      ;;   3042   2%                                     1+
+      ;;   7012   5%                                - setq
+      ;;   3503   2%                                   cdr
+      ;;   3203   2%                                  car
+      ;;     91   0%                          + progn
+      ;;   5758   4%                        - eq
+      ;;   3405   2%                           aref
+      ;;   4488   3%                       - setq
+      ;;   2272   1%                          1+
+      ;;   2788   2%                         <
+      ;;    104   0%                      + let
+      ;;      1   0%                     <
+      ;;   2625   1%                  + puz-remove-rolls-vec2
+      ;;      1   0%                  + save-current-buffer
+      ;;      1   0%             + profiler-start
+      ;;   3811   2%   Automatic GC
+      ;;      0   0%   ...
