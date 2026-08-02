@@ -1,12 +1,14 @@
 ;;; aoc-functions.el --- Advent of Code functions (boj@boj.dk)  -*- lexical-binding: t; -*-
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Requirements
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 ;;; Commentary:
 ;; 
+;; Remember to byte-compile after changes: (byte-compile-file "f.el")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Requirements
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (require 'cl-lib)
 
@@ -79,6 +81,41 @@ Wipes both variable values and function definitions."
          (when (fboundp sym) (fmakunbound sym) (cl-incf count)))))
     (message "Unbound %d puz- bindings" count)))
 
+(defun puz-compile-all ()
+  "Byte-compile every currently-defined puz-* function."
+  (interactive)
+  (let ((n 0))
+    (mapatoms
+     (lambda (sym)
+       (when (and (fboundp sym)
+                  (string-prefix-p "puz-" (symbol-name sym))
+                  (not (subrp (symbol-function sym)))
+                  (not (byte-code-function-p (symbol-function sym))))
+         (byte-compile sym)
+         (setq n (1+ n)))))
+    (message "Byte-compiled %d puz- functions" n)))
+
+(defun puz-compilation-status ()
+  "Report which puz-* functions are compiled vs interpreted."
+  (interactive)
+  (let (interp compiled)
+    (mapatoms
+     (lambda (sym)
+       (when (and (fboundp sym) (string-prefix-p "puz-" (symbol-name sym)))
+         (let ((f (symbol-function sym)))
+           (cond ((subr-native-elisp-p f) (push sym compiled))
+                 ((byte-code-function-p f) (push sym compiled))
+                 ((subrp f) nil)
+                 (t (push sym interp)))))))
+    (message "compiled: %d   interpreted: %s"
+             (length compiled)
+             (if interp (mapconcat #'symbol-name interp " ") "none"))))
+
+(defun puz-benchmark (n form-fn)
+  "Compile all puz- functions, then benchmark FORM-FN N times."
+  (puz-compile-all)
+  (benchmark-call form-fn n))
+;; (puz-benchmark 10 (lambda () (puz-solve-part2c)))
 
 (provide 'aoc-functions)
 ;;; aoc-functions.el ends here
