@@ -6,6 +6,8 @@
                   (file-name-directory
                    (or load-file-name buffer-file-name))))
 
+;; (puz-reset) ; if wished.
+
 ;; Requires the functions from aoc-functions.el
 (require 'aoc-functions) ; REMEMBER this does not reload changes from the file
 
@@ -75,7 +77,7 @@ handles boundaries"
 
 ;;; Part 1. Version treating buffer as array
 
-;; uses faster count and does not use search-forward
+;; Uses faster count and does not use search-forward
 (defun puz-solve-part1c ()
   "Solve Part 1, count number of rolls (@) with less than 4 rolls around it"
   (with-current-buffer "*puz-scratch*"
@@ -92,8 +94,6 @@ handles boundaries"
 
 (message "Solution c for part 1 is = %S" (puz-solve-part1c))
 
-
-
 ;;; Part 1. Version using the cl-loop magic
 
 (defun puz-solve-part1d ()
@@ -106,8 +106,6 @@ handles boundaries"
              ))))
 
 (message "Solution d for part 1 is = %S" (puz-solve-part1d))
-
-
 
 ;;; For Part 2. Version that in-place modifies the buffer
 
@@ -132,7 +130,6 @@ handles boundaries"
       (subst-char-in-region (point-min) (point-max) ?X ?. t)
       acc)))
 
-
 (defun puz-solve-part2a ()
   "Solve part 2. Modifies the '*puz-scratch* buffer."
     (with-current-buffer "*puz-scratch*"
@@ -143,7 +140,7 @@ handles boundaries"
         acc)))
 
 (message "Solution a for part 2 is = %S" (puz-solve-part2a))
-(puz-load "../data/04_data.dat"); Reload dataset
+(puz-load "../data/04_data.dat"); Reload dataset which was modified
 
 ;;; Treat buffer as vector, part one and two.
 
@@ -172,7 +169,6 @@ handles boundaries"
           (cl-incf pos))
         acc)))
 
-(puz-load "../data/04_data.dat")
 (message "Solution e for part 1 is = %S" (puz-solve-part1e))
 
 (defun puz-remove-rolls-vec (vgrid)
@@ -211,7 +207,7 @@ handles boundaries"
 (message "Solution b for part 2 is = %S" (puz-solve-part2b))
 
 
-;; Try to do some optimizations
+;; Part 2, Local optimizations
 
 (defun puz-grid-vec-count-nab2 (pos vgrid target1 target2)
   "Counts number of TARGET1 and TARGET2 charters among the neighbors to POS in vector VGRID representation of grid."
@@ -250,53 +246,56 @@ handles boundaries"
       (setq acc (+ acc n-removed)))
     acc))
 
-(puz-load "../data/04_data.dat")
 (message "Solution c for part 2 is = %S" (puz-solve-part2c))
 
-;; Benchmark versions
+;; Benchmark the different versions
+
+(puz-load "../data/04_data.dat")
 
 (benchmark-run 1 (puz-solve-part1a))
-;;(20.631744597 1 0.282676994) (1 RUN)
+(21.668299949999998 1 0.34129878800000313);(1 RUN), not byte-compiled 
+; (21.396602823 1 0.35108329199999844); (1 RUN), ALL byte-compiled 
 
 (benchmark-run 10 (puz-solve-part1b))
-;; (5.552760011 1 0.28712363100000005) (10 RUNS)
+;; (5.552760011 1 0.28712363100000005) (10 RUNS) not byte-compiled
+;; (1.243407023 0 0.0) ; (10 RUN), ALL byte-compiled
 
 (benchmark-run 10 (puz-solve-part1c))
-;; (5.354362332 1 0.29195927499999996) (10 RUNS)
+;; (5.354362332 1 0.29195927499999996) (10 RUNS) not byte-compiled
+;; (0.548879078 0 0.0); (10 RUN), ALL byte-compiled
 
 (benchmark-run 10 (puz-solve-part1d))
-;; (5.054557688 0 0.0) (10 RUNS)
+;; (5.054557688 0 0.0) (10 RUNS) not byte-compiled
+;; (0.5480555829999999 0 0.0) ; (10 RUN), ALL byte-compiled
 
 (benchmark-run 10 (puz-solve-part1e))
-;;  (10 RUNS)
+;; (7.2881949409999995 0 0.0) (10 RUNS) not byte-compiled
+;; (0.7104646609999999 0 0.0) ; (10 RUN), ALL byte-compiled
 
 (benchmark-run 1 (puz-solve-part2a))
-;;(17.199423175 2 0.6481852000000003) (1 RUN)
+;;(17.199423175 2 0.6481852000000003) (1 RUN) not byte-compiled
+;; (2.571083029 1 0.338989153); ; (1 RUN), ALL byte-compiled
 (puz-load "../data/04_data.dat") ; reload
 
 (benchmark-run 1 (puz-solve-part2b))
-;; (24.474821057 2 0.647141916999999) (1 RUN)
-;; (26.361648776 2 0.6519366610000006)
+;; (24.474821057 2 0.647141916999999) (1 RUN) not byte-compiled
+;; (2.4504965679999997 0 0.0); (1 RUN), ALL byte-compiled
 
-(benchmark-run 10 (puz-solve-part2c))
-;; (28.857028315999997 2 0.6607209900000015), all simpel optimizations
-;; (26.232449491 3 0.9872318259999986) ; with removed rols list
-;; (259.493045326 23 7.595535119000004) ; 10 RUNS, all optimized
-;; (21.287607517 0 0.0) ; 10 RUNS, byte compiled
+(benchmark-run 1 (puz-solve-part2c))
+;; (26.320036399 3 1.025400536999996); 1 RUNS, all optimized, not byte-compiled
+;; (2.2123564190000002 0 0.0) ; (1 RUN), ALL byte-compiled
 
 
-;; we need byte compiling
-(mapc #'byte-compile
-      '(puz-grid-vec-count-nab2 puz-remove-rolls-vec2 puz-solve-part2c))
+;; Profile part 2 
+;; (progn 
+;;   (profiler-start 'cpu)
+;;   (dotimes (_ 5)
+;;           (puz-solve-part2c))
+;;   (profiler-stop)
+;;   (profiler-report))
 
-
-;; Try to benchmark part 2 to see if it can be faster
-(progn 
-  (profiler-start 'cpu)
-  (dotimes (_ 5)
-          (puz-solve-part2c))
-  (profiler-stop)
-  (profiler-report))
+;; Profile from  solve-part2c, NOT byte-compiled
+;; Notice how all functions break down to primitives
 
       ;; 128990  97% - command-execute
       ;; 128990  97%  - funcall-interactively
@@ -359,3 +358,31 @@ handles boundaries"
       ;;      1   0%             + profiler-start
       ;;   3811   2%   Automatic GC
       ;;      0   0%   ...
+
+
+
+;; Profile from  solve-part2c, ALL byte-compiled
+;; It is now clear where the program spends its time
+
+       ;; 10842 100% - command-execute
+       ;; 10842 100%  - funcall-interactively
+       ;; 10842 100%   - eval-defun
+       ;; 10842 100%    - apply
+       ;; 10842 100%     - edebug--eval-defun
+       ;; 10842 100%      - #<native-comp-function eval-defun>
+       ;; 10842 100%       - #<native-comp-function F616e6f6e796d6f75732d6c616d626461_anonymous_lambda_38>
+       ;; 10842 100%        - elisp--eval-defun
+       ;; 10842 100%         - setq
+       ;; 10842 100%          - let
+       ;; 10842 100%           - progn
+       ;; 10842 100%            - progn
+       ;; 10841  99%             - let
+       ;; 10841  99%              - while
+       ;; 10840  99%               - let
+       ;; 10840  99%                - puz-solve-part2c
+       ;; 10838  99%                 - puz-remove-rolls-vec2
+       ;;  8794  81%                    puz-grid-vec-count-nab2
+       ;;     1   0%                   vconcat
+       ;;     1   0%                 setq
+       ;;     1   0%             + profiler-start
+       ;;     0   0%   ...
