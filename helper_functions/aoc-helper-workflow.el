@@ -299,8 +299,8 @@ shown in a side window."
     (unless (file-exists-p desc)
       (condition-case err
           (aoc-fetch-description year day desc)
-        (error (message "Could not fetch description: %s"
-                        (error-message-string err)))))
+        (error "Could not fetch description: %s"
+                        (error-message-string err))))
     ;; Show the description in a side window (fall back to the raw input).
     (cond ((file-exists-p desc)
            (find-file-other-window desc)
