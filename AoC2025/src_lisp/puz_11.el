@@ -2,7 +2,7 @@
 
 ;;; Commentary:
 
-;; Work on solving AOC puzzle 11 from 2026.
+;; Solving AOC puzzle 11 (2025) in elisp (already solved in python).
 ;;
 ;; Assumption is that the we have a directed graph without loops (a directed acyclic graph (DAG))
 ;; This is not explicitly stated in the puzzle, but seems to be the case, at least for the
@@ -21,6 +21,7 @@
 
 ;; Requires the functions from aoc-functions.el
 (require 'aoc-functions) ; REMEMBER this does not reload changes from the file
+(require 'cl-lib)
 
 ; load the data into "*puz-scratch*" buffer
 (puz-load "../data/11_data.dat")
@@ -46,7 +47,7 @@
 ;; The solver for part 2 includes part 1
 
 (defun puz-solve-part1 (node)
-  "Find number of paths using DSF search from NODE to out."
+  "Find number of paths using DFS search from NODE to out."
   (let (res)
     (if (equal node "out")
         (setq res 1)
@@ -68,7 +69,7 @@
 
 ;; A very Python like solver, works but is not really lisp like
 (defun puz-dfs-count1 (state target)
-  "Find number of paths using DSF search from STATE to TARGET, utilizes 'puz-cache'."
+  "Find number of paths using DFS search from STATE to TARGET, utilizes `puz-cache'."
   (let ((res))
     (unless (setq res (gethash (list state target) puz-cache))
       (if (equal state target)
@@ -98,7 +99,7 @@
 (setq puz-cache (make-hash-table :test 'equal));; New and clean cache
 
 (defun puz-dfs-count2 (state target)
-  "Find number of paths using DSF search from STATE to TARGET, utilizes 'puz-cache'."
+  "Find number of paths using DFS search from STATE to TARGET, utilizes `puz-cache'."
   (if (equal state target)
       1
     (or (gethash (list state target) puz-cache)
@@ -116,7 +117,7 @@
 
 ;; Even more lisp like solution, using cl-loop and no local vars, much input from Claude.ai
 (defun puz-dfs-count3 (state target)
-  "Find number of paths using DSF search from STATE to TARGET, utilizes 'puz-cache'."
+  "Find number of paths using DFS search from STATE to TARGET, utilizes `puz-cache'."
   (if (equal state target) ; target reached
       1
     (or (gethash (list state target) puz-cache) ;; part 2 is only evaluated if part 1 (cache) fails
@@ -136,7 +137,7 @@
 
 ;; Version using a local cache, only naming the state
 (defun puz-dfs-count4 (state target)
-    "Find number of paths using DSF search from STATE to TARGET, utilizes 'puz-cache'."
+    "Find number of paths using DFS search from STATE to TARGET, mush be called with `puz-cache' dynamically bound to a fresh table for this TARGET."
   (if (equal state target)
       1
     (or (gethash state puz-cache)
@@ -147,7 +148,7 @@
         acc))))
 
 (defun puz-solve-atob4 (start target)
-  "Solver from START to TARGET using let binding of special variabel PUZ-CACHE."
+  "Solver from START to TARGET using let binding of special variabel `puz-cache'."
   (let ((puz-cache (make-hash-table :test 'equal)))  ; Make new "local special var"
     (puz-dfs-count4 start target)))
 
@@ -169,9 +170,9 @@
                               (cl-incf acc (countit next)))
                             (puthash state acc cache)
                             acc)))))
-      #'countit
-      )))
+      #'countit)))
 
+(defvar puz-dfs-count5)
 (setq puz-dfs-count5 (puz-make-counter "out"))
 ;; Test solver on part 1
 (message "Solution for part 1 using puz-dfs-count5 solver is = %S" (funcall puz-dfs-count5 "you"))
