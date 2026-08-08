@@ -19,7 +19,7 @@
 
 ;; Requires the functions from aoc-functions.el
 (require 'aoc-functions) ; REMEMBER this does not reload changes from the file
-(require 'cl-lib')
+(require 'cl-lib)
 
 ;; load into "*puz-scratch*" buffer
 (puz-load "../data/17_data.dat")
@@ -28,8 +28,8 @@
 
 ;; Define a structure for the cpu state
 (cl-defstruct puz-cpu
-  "CPU structure, a,b,c registers, pc: program counter, jnx: jump not zero flag, out: out buffer, prog: program."
-  a b c (pc 0) (jnz nil) (out nil) prog)
+  "CPU structure, a,b,c registers, pc: program counter, out: out buffer, prog: program."
+  (a 0) (b 0) (c 0) (pc 0) (out nil) prog)
 
 ;; Problem specific parser
 (defun puz-parse ()
@@ -69,7 +69,7 @@
 
 ;; Version using bit-vise operations, deduced from the original puzzle.
 (defun puz-exec-op (cpu)
-  "Execute op-code at current program counter (pc), in-place update CPU state, if jnz fired return `'jnz'."
+  "Execute op-code at current program counter (pc), in-place update CPU state, if jnz fired return `jnz'."
   (pcase (puz-get-op cpu)
     (0
      (setf (puz-cpu-a cpu)  (ash (puz-cpu-a cpu) (- (puz-get-combo-operand cpu)))))
@@ -94,9 +94,9 @@
      (error "Bad opcode: %S" op))))
 
 (defun puz-advance-program (cpu)
-  "Updates CPU at current pc and advance pc."
-    (unless (eq 'jnz (puz-exec-op cpu))
-      (cl-incf (puz-cpu-pc cpu) 2)))
+  "Update CPU at current pc and advance pc."
+  (unless (eq 'jnz (puz-exec-op cpu))
+    (cl-incf (puz-cpu-pc cpu) 2)))
 
 (defun puz-solve-part1 ()
   "Solve Part 1: Run program until pc is larger than length of program."
@@ -105,6 +105,6 @@
       (puz-advance-program cpu))
     (nreverse (puz-cpu-out cpu))))
 
-(message "Solution for part 1 is = %S" (puz-solve-part1))
+(message "Solution for part 1 is = %S" (mapconcat #'number-to-string (puz-solve-part1) "," ))
 
 ;;; puz_17.el ends here
