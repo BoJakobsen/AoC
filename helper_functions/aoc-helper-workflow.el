@@ -94,7 +94,7 @@
   "`format' string, taking the day number, for a puzzle input file name.")
 (defvar aoc-test-file "%02d_testdata.dat"
   "`format' string, taking the day number, for an example/test data file.")
-(defvar aoc-desc-file "puz_%02d.org"
+(defvar aoc-desc-file "puz_desc_%02d.org"
   "`format' string, taking the day number, for the puzzle description file.")
 (defvar aoc-cookie (expand-file-name "session.txt" default-directory)
   "File holding the adventofcode.com session cookie value.")
