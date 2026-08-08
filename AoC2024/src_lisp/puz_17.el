@@ -15,10 +15,11 @@
                    (or load-file-name buffer-file-name))))
 
 ;; Reset all AOC (puz- name-space) and unload aoc-functions
-;;(puz-reset)
+;; (puz-reset)
 
 ;; Requires the functions from aoc-functions.el
 (require 'aoc-functions) ; REMEMBER this does not reload changes from the file
+(require 'cl-lib')
 
 ;; load into "*puz-scratch*" buffer
 (puz-load "../data/17_data.dat")
@@ -62,41 +63,47 @@
     (6
      (puz-cpu-c cpu))
     (7
-     (message "ERROR: combo 7"))
-    (_ ; operand 1 -- 3 are passed through
-     (puz-get-operand cpu))))
+     (error "Combo operand 7, is not in use"))
+    (operand ; operand 0 -- 3 are passed through
+     operand)))
 
-;; Version using bit-vise operations.
-(defun puz-advance-program (cpu)
-  "Execute op-code at current program counter (pc), in-place update CPU state."
+;; Version using bit-vise operations, deduced from the original puzzle.
+(defun puz-exec-op (cpu)
+  "Execute op-code at current program counter (pc), in-place update CPU state, if jnz fired return `'jnz'."
   (pcase (puz-get-op cpu)
     (0
-     (setf (puz-cpu-a cpu)  (ash (puz-cpu-a cpu) (* -1 (puz-get-combo-operand cpu)))))
+     (setf (puz-cpu-a cpu)  (ash (puz-cpu-a cpu) (- (puz-get-combo-operand cpu)))))
     (1
      (setf (puz-cpu-b cpu)  (logxor (puz-cpu-b cpu)  (puz-get-operand cpu))))
     (2
      (setf (puz-cpu-b cpu)  (logand (puz-get-combo-operand cpu) 7 )))
     ((and 3 (guard (not (zerop (puz-cpu-a cpu)))))
      (setf (puz-cpu-pc cpu)  (puz-get-operand cpu))
-     (setf (puz-cpu-jnz cpu)  t))
+     'jnz)
+    (3
+     nil) ; jnz not taken falling through to pc + 2
     (4
      (setf (puz-cpu-b cpu)  (logxor (puz-cpu-b cpu)  (puz-cpu-c cpu))))
     (5
-     (setf (puz-cpu-out cpu) (push (logand (puz-get-combo-operand cpu) 7) (puz-cpu-out cpu))))
+     (push (logand (puz-get-combo-operand cpu) 7) (puz-cpu-out cpu)))
     (6
-     (setf (puz-cpu-b cpu)  (ash (puz-cpu-a cpu) (* -1 (puz-get-combo-operand cpu)))))
+     (setf (puz-cpu-b cpu)  (ash (puz-cpu-a cpu) (- (puz-get-combo-operand cpu)))))
     (7
-     (setf (puz-cpu-c cpu)  (ash (puz-cpu-a cpu) (* -1 (puz-get-combo-operand cpu))))))
-  (if (puz-cpu-jnz cpu)
-      (setf (puz-cpu-jnz cpu)  nil)
-    (setf (puz-cpu-pc cpu) (+ 2 (puz-cpu-pc cpu)))))
+     (setf (puz-cpu-c cpu)  (ash (puz-cpu-a cpu) (- (puz-get-combo-operand cpu)))))
+    (op ; matches all and binds to op
+     (error "Bad opcode: %S" op))))
+
+(defun puz-advance-program (cpu)
+  "Updates CPU at current pc and advance pc."
+    (unless (eq 'jnz (puz-exec-op cpu))
+      (cl-incf (puz-cpu-pc cpu) 2)))
 
 (defun puz-solve-part1 ()
-  "Solve Part 1: Run program until pc larger than length of program."
-    (let ((cpu (puz-parse)))
-      (while (< (puz-cpu-pc cpu) (length (puz-cpu-prog cpu)))
-        (puz-advance-program cpu))
-      (nreverse (puz-cpu-out cpu)))))
+  "Solve Part 1: Run program until pc is larger than length of program."
+  (let ((cpu (puz-parse)))
+    (while (< (puz-cpu-pc cpu) (length (puz-cpu-prog cpu)))
+      (puz-advance-program cpu))
+    (nreverse (puz-cpu-out cpu))))
 
 (message "Solution for part 1 is = %S" (puz-solve-part1))
 
