@@ -25,13 +25,11 @@
 
 (defun find-largest (v)
   "Return (maxval pos) for V."
-  (let* ((maxval (seq-max v))
-         (pos (seq-position v maxval)))
-    (list maxval pos)))
+    (list (setq maxval (seq-max v)) (seq-position v maxval)))
 
 (defun vec-to-num (vec)
   "Return number from digits VEC."
-  (seq-reduce (lambda (a b)  (+ (* 10 a) b))  vec 0))
+  (seq-reduce (lambda (a b)  (+ (* 10 a) b)) vec 0))
 
 (defun puz-solve (parsed N)
   "General solver for N digits."
