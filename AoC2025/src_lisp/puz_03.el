@@ -1,5 +1,10 @@
 ;;; puz_03.el --- AOC 2025 Day 03 -*- lexical-binding: t; -*-
 
+;;; Commentary:
+
+
+;;; Code:
+
 ;; add the AOC local helper function dir to the path
 (add-to-list 'load-path
              (expand-file-name "../../helper_functions"
@@ -32,7 +37,7 @@
   (seq-reduce (lambda (a b)  (+ (* 10 a) b)) vec 0))
 
 (defun puz-solve (parsed N)
-  "General solver for N digits."
+  "General solver on PARSED for N digits."
   (cl-loop for line in (puz-parse)
            sum (vec-to-num
                 (cl-loop with pos = 0
