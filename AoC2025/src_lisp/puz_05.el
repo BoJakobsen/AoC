@@ -56,16 +56,36 @@
     (seq-reduce
      (lambda (res next) (+ res (1+ (- (cadr next) (car next))))) 
      (seq-reduce
-      (lambda (mearged next)
-        (let* ((last (pop mearged)))
+      (lambda (merged next)
+        (let* ((last (pop merged)))
           (if (and (<= (car last) (cadr next)) (<= (car next) (cadr last)))
-              (push (list (min (car last) (car next)) (max (cadr last) (cadr next))) mearged)
-            (push last mearged)
-            (push next mearged))
-          mearged))
+              (push (list (min (car last) (car next)) (max (cadr last) (cadr next))) merged)
+            (push last merged)
+            (push next merged))
+          merged))
       freshranges veryfirst) 0)))
 
 (message "Solution for part 2 is = %s" (puz-solve-part2  (puz-parse)))
+
+
+;; a bit cleaner version (Claude.ai code review inspired)
+
+(defun puz-merge-into (merged next)
+  "Adds NEXT to MERGED assume MERGED is sorted."
+  (let* ((prev (car merged)))
+    (if (<= (car next) (cadr prev)) ; only works if sorting is done first
+        (cons (list (car prev) (max (cadr prev) (cadr next))) (cdr merged))
+      (cons next merged))))
+
+(defun puz-solve-part2-simplified (parsed)
+  "Solve Part 2 using PARSED data."
+  (let* ((freshranges (sort (car parsed) :key #'car)) ; sorted ranges on the first element
+         (seed (list (pop freshranges)))
+         (merged (seq-reduce #'puz-merge-into freshranges seed)))
+    (cl-loop for (a b) in merged
+             sum (1+ (- b a)))))
+
+(message "Solution for part 2 is = %s" (puz-solve-part2-simplified  (puz-parse)))
 
 
 ;;; puz_05.el ends here
