@@ -21,12 +21,12 @@
 ;; Load puzzle data into "*puz-scratch*" buffer
 (puz-load "../data/DD_data.dat")
 
-;; For grid problem 
+;; For grid problem
 ; (puz-grid-init); sets puz-grid-n-cols, puz-grid-n-rows, puz-grid-offsets (8- nab)
 
 ;; For problem specific parser
 (defun puz-parse ()
-  "Parse `*puz-scratch*' "
+  "Parse `*puz-scratch*'."
   (with-current-buffer "*puz-scratch*"
     (let ((parsed nil))
       ( 
@@ -36,7 +36,7 @@
 ;;(puz-parse)  
 
 (defun puz-solve-part1 (parsed)
-  "Solve Part 1"
+  "Solve Part 1 using PARSED."
 )
 
 (message "Solution for part 1 is = %S" (puz-solve-part1  (puz-parse)))
