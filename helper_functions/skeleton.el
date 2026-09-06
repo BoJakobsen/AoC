@@ -2,7 +2,7 @@
 
 
 ;;; Commentary:
-Advent of Code puzzel YYYY Day DD
+;; Advent of Code puzzel YYYY Day DD
 
 ;;; Code:
 
@@ -33,7 +33,7 @@ Advent of Code puzzel YYYY Day DD
          )
       parsed)))
 
-;;(puz-parse)  ; veal with C-x C-e to inspect parsed output
+;;(puz-parse)  
 
 (defun puz-solve-part1 (parsed)
   "Solve Part 1"

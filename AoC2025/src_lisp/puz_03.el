@@ -52,7 +52,7 @@
 ;; recursive version, maybe more pure lisp like
 (defun puz-construct-largest (line n start)
   "General recursive solver, return N numbers from LINE starting at START."
-  (unless (= n 0) ; implicitly returns a nil as base case.
+  (unless (= n 0) ; implicitly returns a nil as base case, hence cons works.
     (let* ((slice (seq-subseq line start (- (length line) (1- n))))
            (maxval (seq-max slice))
            (maxpos (seq-position slice maxval)))

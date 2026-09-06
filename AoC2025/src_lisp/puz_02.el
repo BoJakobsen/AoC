@@ -1,4 +1,4 @@
-;;; puz_02.el --- AOC 2025 Day 02 -*- lexical-binding: t; -*-
+n;;; puz_02.el --- AOC 2025 Day 02 -*- lexical-binding: t; -*-
 
 
 ;; add the AOC local helper function dir to the path
@@ -77,4 +77,3 @@
              finally return (list res1 res2)))
 
 (message "Solution for part 1 and 2 is = %S" (puz-solve-part1-2 (puz-parse)))
-
