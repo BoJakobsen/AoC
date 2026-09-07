@@ -32,8 +32,7 @@
            (lines  (mapcar #'split-string textlines))
            )
       lines)))
-(length (nth 3 (puz-parse)))  
-(message "%s" (nth 3 (puz-parse)) )
+;;(message "%S" (nth 1 (puz-parse)) )
 
 ;; Not very nice solution, works, however hard coded number of lines
 ;; (which is different in test and real data). 
@@ -76,4 +75,32 @@
 (message "Solution for part 1 c is = %S" (puz-solve-part1-c  (puz-parse)))
 
 
+(defun puz-parse2 ()
+  "Parse `*puz-scratch*' for part 2"
+  (with-current-buffer "*puz-scratch*"
+    (let* ((textlines (split-string  (buffer-string) "\n" t)))
+      textlines)))
+(message "%S" (nth 1 (puz-parse2)) )
+
+
+(defun puz-solve-part2-a (parsed)
+  "Solve part 2 from PARSED.
+Assume no 0 in the input might not be general but applies to mine."
+  (let* ((ops (nreverse (split-string (car (last parsed))))) ; gap list of operators 
+         (operands (mapcar #'nreverse (butlast parsed))); operand lists
+         (operandlist (mapcar #'string-to-number (apply #'cl-mapcar #'string operands)))
+         (oper nil)
+         (res 0))
+    (dolist (x operandlist)
+      (if (= 0 x)
+          (progn
+            (cl-incf res (apply (intern-soft (pop ops)) oper))
+            (setq oper nil))
+        (push x oper)))
+    (cl-incf res (apply (intern-soft (pop ops)) oper))
+    res))
+
+(puz-solve-part2-a (puz-parse2))
+
 ;;; puz_06.el ends here
+
