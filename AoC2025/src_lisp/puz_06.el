@@ -19,10 +19,12 @@
 (require 'cl-lib)
 
 ;; Load puzzle data into "*puz-scratch*" buffer
-(puz-load "../data/06_data.dat")
+;;(puz-load "../data/06_data.dat")
 
-;; For grid problem
-; (puz-grid-init); sets puz-grid-n-cols, puz-grid-n-rows, puz-grid-offsets (8- nab)
+;; Macro-> defines (puz-load-data) og (puz-load-testdata)
+(puz-loaders "../data" 6 )
+(puz-load-data)
+;;(puz-load-testdata)
 
 ;; For problem specific parser
 (defun puz-parse ()
@@ -32,7 +34,6 @@
            (lines  (mapcar #'split-string textlines))
            )
       lines)))
-;;(message "%S" (nth 1 (puz-parse)) )
 
 ;; Not very nice solution, works, however hard coded number of lines
 ;; (which is different in test and real data).
@@ -43,7 +44,6 @@
            for a2 in (nth 1 parsed)
            for a3 in (nth 2 parsed)
            for a4 in (nth 3 parsed)
-           do (message "%s" op)
            sum (funcall (intern-soft op) (string-to-number a1) (string-to-number a2) (string-to-number a3)(string-to-number a4) )))
 
 (message "Solution for part 1 is = %S" (puz-solve-part1  (puz-parse)))
@@ -80,8 +80,6 @@
   (with-current-buffer "*puz-scratch*"
     (let* ((textlines (split-string  (buffer-string) "\n" t)))
       textlines)))
-(message "%S" (nth 1 (puz-parse2)) )
-
 
 ;; The magic is in the `(apply #'cl-mapcar #'string operands)' which reads columns into strings
 (defun puz-solve-part2-a (parsed)
@@ -103,18 +101,17 @@ Assume no 0 in the input might not be general but applies to mine."
 
 (puz-solve-part2-a (puz-parse2))
 
-
 ;; refactor and split out the ugly list splitting.
 
-(defun puz-split-list (orglist split)
-  "Split ORGLIST at SPLIT into a list of lists."
+(defun puz-split-list (lst sep)
+  "Split LST at SEP into a list of lists."
   (let* ((collect)
          (newlist))
-    (dolist (x orglist)
-            (if (equal x split)
+    (dolist (x lst)
+            (if (equal x sep)
                 (progn (push (nreverse collect) newlist) (setq collect nil))
               (push x collect)))
-    (nreverse (push (nreverse collect) newlist))))
+    (nreverse (cons (nreverse collect) newlist))))
 
 ;; Splitting out the split-list function, cleans up code, and allows to use cl-loop
 (defun puz-solve-part2-b (parsed)
@@ -129,8 +126,6 @@ Assume no 0 in the input might not be general but applies to mine."
              sum (apply (intern-soft op) x))))
 
 (puz-solve-part2-b (puz-parse2))
-
-
 
 ;;; puz_06.el ends here
 
