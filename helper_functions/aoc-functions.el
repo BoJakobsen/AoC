@@ -27,6 +27,13 @@
       (whitespace-mode) ;; show space and newline
       (setq truncate-lines t)))) ;; do not wrap
 
+(defmacro puz-loaders (path day)
+  "Defines puz-load-data and puz-load-testdata loading PATH + `DAY_data.dat' and `DAT_testdata.dat'."
+  `(defun puz-load-data ()
+     (puz-load ,(concat path "/" (format "%02d_data.dat" day))))
+  `(defun puz-load-testdata ()
+     (puz-load ,(concat path "/" (format "%02d_testdata.dat" day)))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; For grid based puzzles
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -63,6 +70,22 @@
         (when (memq (char-after (+ pos offset))  target)
           (cl-incf acc)))
       acc))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Some general tools
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun puz-split-list (lst sep)
+  "Split LST at SEP into a list of lists."
+  (let* ((collect)
+         (newlist))
+    (dolist (x lst)
+            (if (equal x sep)
+                (progn (push (nreverse collect) newlist) (setq collect nil))
+              (push x collect)))
+    (nreverse (cons (nreverse collect) newlist))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; General tools
