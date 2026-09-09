@@ -18,12 +18,13 @@
 
 (require 'cl-lib)
 
-;; Define (puz-load-data) and (puz-load-testdata) with current filenames
-(puz-loaders "../data" DD )
-;; Load puzzle data into "*puz-scratch*" buffer
-(puz-load-data)
-;;(puz-load-testdata)
 
+
+;; Macro define (puz-load-data) and (puz-load-testdata) with current filenames
+(puz-loaders "../data" DD)
+;; Load puzzle data into "*puz-scratch*" buffer
+(puz-load-data) ; bound to : C-c p d
+;;(puz-load-testdata) ; bound to : C-c p t
 
 ;; For grid problem
 ; (puz-grid-init); sets puz-grid-n-cols, puz-grid-n-rows, puz-grid-offsets (8- nab)

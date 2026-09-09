@@ -29,11 +29,21 @@
 
 (defmacro puz-loaders (path day)
   "Defines puz-load-data and puz-load-testdata loading PATH + `DAY_data.dat' and `DAT_testdata.dat'."
-  `(defun puz-load-data ()
-     (puz-load ,(concat path "/" (format "%02d_data.dat" day))))
-  `(defun puz-load-testdata ()
-     (puz-load ,(concat path "/" (format "%02d_testdata.dat" day)))))
+  `(progn
+     (defun puz-load-data ()
+       ,(format "Load day %02d real input." day )
+       (interactive)
+       (puz-load (concat ,path "/" (format "%02d_data.dat" ,day)))
+       (message ,(format "Load day %02d: real input." day))
+       )
+     (defun puz-load-testdata ()
+       ,(format "Load day %02d test input." day )
+       (interactive)
+       (puz-load (concat ,path "/" (format "%02d_testdata.dat" ,day)))
+     (message ,(format "Load day %02d: test input." day)))))
 
+(keymap-set global-map "C-c p d" #'puz-load-data )
+(keymap-set global-map "C-c p t" #'puz-load-testdata)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; For grid based puzzles
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
