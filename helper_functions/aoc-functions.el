@@ -44,6 +44,7 @@
 
 (keymap-set global-map "C-c p d" #'puz-load-data )
 (keymap-set global-map "C-c p t" #'puz-load-testdata)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; For grid based puzzles
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
