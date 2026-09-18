@@ -45,7 +45,7 @@
 (defun puz-solve-part1 ()
   "Solve Part 1."
   (with-current-buffer "*puz-scratch*"
-    (let ((puz-cache (make-hash-table :test 'equal))
+    (let ((puz-cache (make-hash-table :test 'eql))
           (puz-grid-n-cols (- (line-end-position) (line-beginning-position)))
           (tree (vconcat (buffer-string))))
       (puz-count-splits (seq-position tree ?S) tree))))
@@ -67,7 +67,7 @@
 (defun puz-solve-part2 ()
   "Solve Part 2."
   (with-current-buffer "*puz-scratch*"
-    (let ((puz-cache (make-hash-table :test 'equal))
+    (let ((puz-cache (make-hash-table :test 'eql))
           (puz-grid-n-cols (- (line-end-position) (line-beginning-position)))
           (tree (vconcat (buffer-string))))
       (puz-count-worlds (seq-position tree ?S) tree))))
