@@ -18,8 +18,6 @@
 
 (require 'cl-lib)
 
-
-
 ;; Macro define (puz-load-data) and (puz-load-testdata) with current filenames
 (puz-loaders "../data" 09)
 ;; Load puzzle data into "*puz-scratch*" buffer
@@ -51,7 +49,7 @@
 (defvar puz-ys)
 (defvar puz-grid-width)
 (defvar puz-grid-height)
-(defvar puz-grid)
+;(defvar puz-grid)
 
 (let ((sorted (mapcar #'seq-uniq (mapcar #'sort  (apply #'cl-mapcar #'list (puz-parse))))))
   (setq puz-xs (car sorted))
@@ -63,23 +61,28 @@
 (defun puz-compress (p)
   (list (1+ (* 2 (seq-position puz-xs (car p)))) (1+ (* 2 (seq-position puz-ys (cadr p))))))
 
+(defun puz-decode-x-y (p)
+  (+ (car p) (* (cadr p) puz-grid-width))
+  )
+
 ;; Could use some "check for bound"
 (defun puz-grid-set (p z)
-  (aset puz-grid (+ (car p) (* (cadr p) puz-grid-width)) z))
+  (aset puz-grid (puz-decode-x-y p)  z))
 
 ;; Could use some "check for bound"
 (defun puz-grid-get (p)
-  (aref puz-grid (+ (car p) (* (cadr p) puz-grid-width))))
+  (aref puz-grid (puz-decode-x-y p)))
 
-(defun puz-grid-print ()
+(defun puz-grid-print (grid)
     (cl-loop for n from 0  to (1- puz-grid-height)
-             do (message "%s \n " (seq-subseq puz-grid (* n puz-grid-width) (* (1+ n) puz-grid-width)))
+             do (message "%s \n " (seq-subseq grid (* n puz-grid-width) (* (1+ n) puz-grid-width)))
              ))
+
 
 ;; Generate compressed grid
 (defun puz-generate-compressed-grid (parsed)
-  (setq puz-grid (make-vector (* puz-grid-width  puz-grid-height) 0))
-  (let* ((pairs (puz-parse))
+  (let* ((puz-grid (make-vector (* puz-grid-width  puz-grid-height) 0))
+         (pairs (puz-parse))
          (pairs-comp (mapcar #'puz-compress pairs))
          (pairs-comp-wrap (append pairs-comp (list (car pairs-comp))))
          )
@@ -89,33 +92,41 @@
                   (cl-loop for x from (min (car p1) (caar rest)) to (max (car p1) (caar rest)) 
                            do (puz-grid-set (list x (cadr p1)) 1 ))
                   (cl-loop for y from (min (cadr p1) (cadar rest)) to (max (cadr p1) (cadar rest))  
-                           do (puz-grid-set (list (car p1) y) 1 ))))))
+                           do (puz-grid-set (list (car p1) y) 1 )))
+             finally return puz-grid)))
 
-;; now we need to flood fill the outside, assuming no "hidden inner parts not part of the area"
-(defun puz-grid-fill ()
+;; flood fill the outside, assuming no "hidden inner parts not part of the area"
+(defun puz-grid-fill (grid)
  (let ((stack (list 0)))
-  (aset puz-grid 0 -1)
+  (aset grid 0 -1)
   (while stack
     (let ((pos (pop stack)))
-      (dolist (offset  (list -1 1 puz-grid-width puz-grid-height))
+      (dolist (offset  (list -1 1 (* -1 puz-grid-width) puz-grid-width))
         (let ((new-pos (+ pos offset)))
           (when (and (<= 0 new-pos) (> (* puz-grid-width puz-grid-height) new-pos)
-                   (= 0 (aref puz-grid new-pos)))
-            (aset puz-grid new-pos -1)
+                   (= 0 (aref grid new-pos)))
+            (aset grid new-pos -1)
             (push new-pos stack)
             ))))))
- (cl-loop for p across-ref puz-grid
-          when (= p 0) do (setf p 1)
-          when (= p -1) do (setf p 0))
- )
+ grid)
 
 
+(defun puz-grid-outside (grid)
+    (cl-loop for p across-ref grid
+             when (= p 1) do (setf p 0)
+             when (= p -1) do (setf p 1)
+             finally return grid
+             ))
 
+(defun puz-solve-part2 (parsed)
+  ""
+  (let* ((grid (puz-generate-compressed-grid parsed))
+         (grid (puz-grid-fill grid))
+         (grid (puz-grid-outside grid))
+         )
+    (puz-grid-print grid)
+    ))
 
-(puz-generate-compressed-grid (puz-parse) )
-(puz-grid-fill)
-(puz-grid-print)
-
-
+(puz-solve-part2 (puz-parse))
 
 ;;; puz_09.el ends here
