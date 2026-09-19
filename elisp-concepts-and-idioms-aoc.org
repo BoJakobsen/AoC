@@ -37,20 +37,23 @@ namespace/compile/benchmark tooling.
 =cl-loop= turned out to be the single biggest win of the year. It is a
 whole DSL; the clauses actually used:
 
-| Clause                  | Does                                         | Seen in    |
-|-------------------------+----------------------------------------------+------------|
-| =with VAR = INIT=         | one-shot local, before the loop starts       | [[file:AoC2025/src_lisp/puz_01.el][01]], [[file:AoC2025/src_lisp/puz_03.el][03]]     |
-| =for X in LIST=           | iterate a list                               | most       |
-| =for N from A to B=       | numeric range (also =downto=, =below=, =by=)       | [[file:AoC2025/src_lisp/puz_02.el][02]], [[file:AoC2025/src_lisp/puz_03.el][03]], [[file:AoC2025/src_lisp/puz_04.el][04]] |
-| =for X = EXPR=            | recomputed binding each pass (not iteration) | [[file:AoC2025/src_lisp/puz_01.el][01]], [[file:AoC2025/src_lisp/puz_03.el][03]]     |
-| =for (A B) in LIST=       | destructuring — each element is a list       | [[file:AoC2025/src_lisp/puz_05.el][05]], [[file:AoC2025/src_lisp/puz_02.el][02]]     |
-| =do FORM=                 | side effect                                  | [[file:AoC2025/src_lisp/puz_01.el][01]], [[file:AoC2025/src_lisp/puz_03.el][03]]     |
-| =collect= / =sum= / =count=   | accumulate the return value                  | most       |
-| =when COND <accumulator>= | guard on an accumulation clause              | [[file:AoC2025/src_lisp/puz_02.el][02]], [[file:AoC2025/src_lisp/puz_04.el][04]]     |
-| =sum EXPR into VAR=       | *named* accumulator — several in one loop      | [[file:AoC2025/src_lisp/puz_02.el][02]]         |
-| =finally return FORM=     | what the loop hands back                     | [[file:AoC2025/src_lisp/puz_02.el][02]]         |
+| Clause                      | Does                                         | Seen in    |
+|-----------------------------+----------------------------------------------+------------|
+| =with VAR = INIT=           | one-shot local, before the loop starts       | [[file:AoC2025/src_lisp/puz_01.el][01]], [[file:AoC2025/src_lisp/puz_03.el][03]]     |
+| =for X on LIST=             | iterates tails of list                       | 09         |
+| =for X in LIST=             | iterate a list                               | most       |
+| =for X = EXPR=              | recomputed binding each pass (not iteration) | [[file:AoC2025/src_lisp/puz_01.el][01]], [[file:AoC2025/src_lisp/puz_03.el][03]]     |
+| =for N from A to B=         | numeric range (also =downto=, =below=, =by=) | [[file:AoC2025/src_lisp/puz_02.el][02]], [[file:AoC2025/src_lisp/puz_03.el][03]], [[file:AoC2025/src_lisp/puz_04.el][04]] |
+| =for (A B) in LIST=         | destructuring — each element is a list       | [[file:AoC2025/src_lisp/puz_05.el][05]], [[file:AoC2025/src_lisp/puz_02.el][02]]     |
+| =do FORM=                   | side effect                                  | [[file:AoC2025/src_lisp/puz_01.el][01]], [[file:AoC2025/src_lisp/puz_03.el][03]]     |
+| =collect= / =sum= / =count= | accumulate the return value                  | most       |
+| =when COND <accumulator>=   | guard on an accumulation clause              | [[file:AoC2025/src_lisp/puz_02.el][02]], [[file:AoC2025/src_lisp/puz_04.el][04]]     |
+| =sum EXPR into VAR=         | *named* accumulator — several in one loop    | [[file:AoC2025/src_lisp/puz_02.el][02]]         |
+| =finally return FORM=       | what the loop hands back                     | [[file:AoC2025/src_lisp/puz_02.el][02]]         |
 
-Two things worth internalising:
+Things worth internalising:
+
+Deconstruction works at many levels, which is very handy
 
 *Multiple =for= clauses iterate in parallel, not nested.* They stop at
 the shortest. This is how [[file:AoC2025/src_lisp/puz_06.el][puz_06]] walks an operator list and an
@@ -76,6 +79,18 @@ operand list together, and how [[file:AoC2025/src_lisp/puz_06.el][puz_06 part 1]
 Gotcha: =count= counts *true results of its own expression*, it does not
 just tick per iteration — =when COND count EXPR= counts passes where both
 are true. See =puz-solve-part1d= in [[file:AoC2025/src_lisp/puz_04.el][puz_04]].
+
+Example of standard "loop over pairs", also using deconstruction 
+#+begin_src emacs-lisp   
+  (cl-loop for ((a1 b1) . rest) on parsed
+           when rest
+           maximize (cl-loop
+                     for (a2 b2) in rest
+                     maximize  (* (1+ (abs (- a1 a2)))(1+ (abs (- b1 b2))))))
+
+#+end_src
+
+
 
 * cl-lib functions picked up
 
