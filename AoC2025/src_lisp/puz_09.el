@@ -58,26 +58,25 @@
   (setq puz-grid-height (1+ (* 2 (length puz-ys))))
   )
 
+(defun puz-compress-x (x)
+  (1+ (* 2 (seq-position puz-xs x))))
+
+(defun puz-compress-y (y)
+  (1+ (* 2 (seq-position puz-ys y))))
+
+;; (defun puz-compress (p)
+;;   (list (1+ (* 2 (seq-position puz-xs (car p)))) (1+ (* 2 (seq-position puz-ys (cadr p))))))
 (defun puz-compress (p)
-  (list (1+ (* 2 (seq-position puz-xs (car p)))) (1+ (* 2 (seq-position puz-ys (cadr p))))))
+  (list (puz-compress-x (car p)) (puz-compress-y (cadr p))))
 
 (defun puz-decode-x-y (p)
   (+ (car p) (* (cadr p) puz-grid-width))
   )
 
-;; Could use some "check for bound"
-(defun puz-grid-set (p z)
-  (aset puz-grid (puz-decode-x-y p)  z))
-
-;; Could use some "check for bound"
-(defun puz-grid-get (p)
-  (aref puz-grid (puz-decode-x-y p)))
-
 (defun puz-grid-print (grid)
     (cl-loop for n from 0  to (1- puz-grid-height)
              do (message "%s \n " (seq-subseq grid (* n puz-grid-width) (* (1+ n) puz-grid-width)))
              ))
-
 
 ;; Generate compressed grid
 (defun puz-generate-compressed-grid (parsed)
@@ -112,20 +111,53 @@
 
 
 (defun puz-grid-outside (grid)
+  "Mark the `outside' of the shape by 1's"
     (cl-loop for p across-ref grid
              when (= p 1) do (setf p 0)
              when (= p -1) do (setf p 1)
              finally return grid
              ))
 
+;; Build: 2D prefix sum, summed-area table, might not the be most general implementation
+(defun puz-build-sat (grid)
+  "Build a summed-area table also known as 2D prefix sum.
+Not totally general, we know that the shape is embedded in one empty block on all sides"
+  (let* ((sat (make-vector (* puz-grid-width  puz-grid-height) 0) ))
+    (cl-loop for y from 1 to (1- puz-grid-height)
+             do (cl-loop for x from 1 to (1- puz-grid-width)
+                         do
+                         (aset sat (puz-decode-x-y (list x y))
+                               (+ (aref sat (puz-decode-x-y (list (1- x) y))) (aref sat (puz-decode-x-y (list x (1- y))))
+                                  (* -1 (aref sat (puz-decode-x-y (list (1- x) (1- y)))))  (aref grid (puz-decode-x-y (list (1- x) (1- y))))))))
+    sat))
+
+(defun puz-get-overlap (sat x1 y1 x2 y2)
+  (+ (aref sat (puz-decode-x-y (list (1+ x2) (1+ y2))))
+     (* -1 (aref sat (puz-decode-x-y (list x1 (1+ y2)))))
+     (* -1 (aref sat (puz-decode-x-y (list (1+ x2) y1))))
+     (aref sat (puz-decode-x-y (list x1 y1)))))
+
+
 (defun puz-solve-part2 (parsed)
   ""
   (let* ((grid (puz-generate-compressed-grid parsed))
          (grid (puz-grid-fill grid))
          (grid (puz-grid-outside grid))
+         (sat (puz-build-sat grid))
          )
-    (puz-grid-print grid)
-    ))
+    ;(puz-grid-print sat)
+    ;(message "%s" (puz-get-overlap sat 2 2 6 6))
+                                        ;(puz-grid-print grid)
+    (cl-loop for ((x1 y1) . rest) on parsed ; combined "tail loop" and deconstruction
+             when rest ; needed as rest might be empty, which breaks inner loop
+             maximize (cl-loop
+                       for (x2 y2) in rest
+                       when (let ((x1c (puz-compress-x x1))
+                                  (x2c (puz-compress-x x2))
+                                  (y1c (puz-compress-y y1))
+                                  (y2c (puz-compress-y y2)))
+                              (= 0 (puz-get-overlap sat x1c y1c x2c y2c)))
+                       maximize (* (1+ (abs (- x1 x2)))(1+ (abs (- y1 y2))))))))
 
 (puz-solve-part2 (puz-parse))
 
