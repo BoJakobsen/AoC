@@ -43,7 +43,6 @@
 
 (message "Solution for part 1 is = %S" (puz-solve-part1  (puz-parse)))
 
-
 ;; Setup utilities for compressing the grid into a 2d structure
 ;; compression grid info as global vars
 (defvar puz-xs)
@@ -67,8 +66,8 @@
 (defun puz-compress (p)
   (list (puz-compress-x (car p)) (puz-compress-y (cadr p))))
 
-(defun puz-decode-x-y (p)
-  (+ (car p) (* (cadr p) puz-grid-width)))
+(defun puz-idx (x y)
+  (+ x (* y puz-grid-width)))
 
 (defun puz-grid-print (grid)
     (cl-loop for n from 0  to (1- puz-grid-height)
@@ -81,11 +80,10 @@
          (pairs-comp-wrap (append pairs-comp (list (car pairs-comp)))))
     (cl-loop for (p1 . rest) on pairs-comp-wrap
              when rest
-             do (progn
-                  (cl-loop for x from (min (car p1) (caar rest)) to (max (car p1) (caar rest)) 
-                           do (aset puz-grid (puz-decode-x-y (list x (cadr p1)))  1 ))
-                  (cl-loop for y from (min (cadr p1) (cadar rest)) to (max (cadr p1) (cadar rest))  
-                           do (aset puz-grid (puz-decode-x-y (list (car p1) y)) 1 )))
+             do (progn (cl-loop for x from (min (car p1) (caar rest)) to (max (car p1) (caar rest)) 
+                                do (aset puz-grid (puz-idx x (cadr p1))  1 ))
+                       (cl-loop for y from (min (cadr p1) (cadar rest)) to (max (cadr p1) (cadar rest))  
+                                do (aset puz-grid (puz-idx (car p1) y) 1 )))
              finally return puz-grid)))
 
 ;; flood-fill the outside, assuming no "hidden inner parts not part of the area"
@@ -99,16 +97,15 @@
           (when (and (<= 0 new-pos) (> (* puz-grid-width puz-grid-height) new-pos)
                    (= 0 (aref grid new-pos)))
             (aset grid new-pos -1)
-            (push new-pos stack)
-            ))))))
+            (push new-pos stack)))))))
  grid)
 
 
 (defun puz-grid-outside (grid)
   "Mark the `outside' of the shape by 1's for sat calculation."
     (cl-loop for p across-ref grid
-             when (= p 1) do (setf p 0)
-             when (= p -1) do (setf p 1)
+             if (= p 1) do (setf p 0)
+             else if (= p -1) do (setf p 1)
              finally return grid))
 
 ;; Build: 2D prefix sum, summed-area table, might not the be most general implementation
@@ -119,36 +116,36 @@ Not totally general, we know that the shape is embedded in one empty block on al
     (cl-loop for y from 1 to (1- puz-grid-height)
              do (cl-loop for x from 1 to (1- puz-grid-width)
                          do
-                         (aset sat (puz-decode-x-y (list x y))
-                               (+ (aref sat (puz-decode-x-y (list (1- x) y))) (aref sat (puz-decode-x-y (list x (1- y))))
-                                  (* -1 (aref sat (puz-decode-x-y (list (1- x) (1- y)))))  (aref grid (puz-decode-x-y (list (1- x) (1- y))))))))
+                         (aset sat (puz-idx x y)
+                               (+ (aref sat (puz-idx (1- x) y)) (aref sat (puz-idx x (1- y)))
+                                  (* -1 (aref sat (puz-idx  (1- x) (1- y))))  (aref grid (puz-idx (1- x) (1- y)))))))
     sat))
 
 (defun puz-get-overlap (sat x1 y1 x2 y2)
   "Get overlap between X1,Y1,X2,Y2 and grid using SAT."
-  (+ (aref sat (puz-decode-x-y (list (1+ x2) (1+ y2))))
-     (* -1 (aref sat (puz-decode-x-y (list x1 (1+ y2)))))
-     (* -1 (aref sat (puz-decode-x-y (list (1+ x2) y1))))
-     (aref sat (puz-decode-x-y (list x1 y1)))))
+  (+ (   aref sat (puz-idx (1+ x2) (1+ y2)))
+     (- (aref sat (puz-idx x1 (1+ y2))))
+     (- (aref sat (puz-idx (1+ x2) y1)))
+     (aref sat (puz-idx x1 y1))))
 
 (defun puz-solve-part2 (parsed)
   "Solve part 2."
+  (puz-setup-compression) ; ensure global vars for compression is updated
   (let* ((grid (puz-generate-compressed-grid parsed))
          (grid (puz-grid-fill grid))
          (grid (puz-grid-outside grid))
-         (sat (puz-build-sat grid))
-         )
+         (sat (puz-build-sat grid)))
     (cl-loop for ((x1 y1) . rest) on parsed  
              when rest 
-             maximize (cl-loop
-                       for (x2 y2) in rest
-                       when (let ((x1c (puz-compress-x x1)) 
-                                  (x2c (puz-compress-x x2))
-                                  (y1c (puz-compress-y y1))
-                                  (y2c (puz-compress-y y2)))
-                              (= 0 (puz-get-overlap sat x1c y1c x2c y2c))) ; only count fully overlap
-                       maximize (* (1+ (abs (- x1 x2)))(1+ (abs (- y1 y2))))))))
+             maximize (let ((x1c (puz-compress-x x1)) 
+                            (y1c (puz-compress-y y1)))
+                        (cl-loop
+                         for (x2 y2) in rest
+                         when (let ((x2c (puz-compress-x x2))
+                                    (y2c (puz-compress-y y2)))
+                                (= 0 (puz-get-overlap sat x1c y1c x2c y2c))) ; only count fully overlap
+                         maximize (* (1+ (abs (- x1 x2)))(1+ (abs (- y1 y2)))))))))
 
-(message "Solution for part 2 is = %S" (progn (puz-setup-compression)   (puz-solve-part2  (puz-parse))))
+(message "Solution for part 2 is = %S" (puz-solve-part2  (puz-parse)))
 
 ;;; puz_09.el ends here
