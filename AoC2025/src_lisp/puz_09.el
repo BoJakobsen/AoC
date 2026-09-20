@@ -4,6 +4,8 @@
 ;;; Commentary:
 ;; Advent of Code puzzel 2025 Day 09
 
+;; Solution using grid compression and summed-area table for part 2
+
 ;;; Code:
 
 ;; Reset all AOC (puz- name-space) and unload aoc-functions
@@ -15,7 +17,6 @@
                                (file-name-directory
                                 (or load-file-name buffer-file-name))))
 (require 'aoc-functions) ; REMEMBER this does not reload changes from the file
-
 (require 'cl-lib)
 
 ;; Macro define (puz-load-data) and (puz-load-testdata) with current filenames
