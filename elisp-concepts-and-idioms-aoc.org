@@ -37,19 +37,19 @@ namespace/compile/benchmark tooling.
 =cl-loop= turned out to be the single biggest win of the year. It is a
 whole DSL; the clauses actually used:
 
-| Clause                      | Does                                         | Seen in    |
-|-----------------------------+----------------------------------------------+------------|
-| =with VAR = INIT=           | one-shot local, before the loop starts       | [[file:AoC2025/src_lisp/puz_01.el][01]], [[file:AoC2025/src_lisp/puz_03.el][03]]     |
-| =for X on LIST=             | iterates tails of list                       | 09         |
-| =for X in LIST=             | iterate a list                               | most       |
-| =for X = EXPR=              | recomputed binding each pass (not iteration) | [[file:AoC2025/src_lisp/puz_01.el][01]], [[file:AoC2025/src_lisp/puz_03.el][03]]     |
-| =for N from A to B=         | numeric range (also =downto=, =below=, =by=) | [[file:AoC2025/src_lisp/puz_02.el][02]], [[file:AoC2025/src_lisp/puz_03.el][03]], [[file:AoC2025/src_lisp/puz_04.el][04]] |
-| =for (A B) in LIST=         | destructuring — each element is a list       | [[file:AoC2025/src_lisp/puz_05.el][05]], [[file:AoC2025/src_lisp/puz_02.el][02]]     |
-| =do FORM=                   | side effect                                  | [[file:AoC2025/src_lisp/puz_01.el][01]], [[file:AoC2025/src_lisp/puz_03.el][03]]     |
-| =collect= / =sum= / =count= | accumulate the return value                  | most       |
-| =when COND <accumulator>=   | guard on an accumulation clause              | [[file:AoC2025/src_lisp/puz_02.el][02]], [[file:AoC2025/src_lisp/puz_04.el][04]]     |
-| =sum EXPR into VAR=         | *named* accumulator — several in one loop    | [[file:AoC2025/src_lisp/puz_02.el][02]]         |
-| =finally return FORM=       | what the loop hands back                     | [[file:AoC2025/src_lisp/puz_02.el][02]]         |
+| Clause                  | Does                                         | Seen in    |
+|-------------------------+----------------------------------------------+------------|
+| =with VAR = INIT=         | one-shot local, before the loop starts       | [[file:AoC2025/src_lisp/puz_01.el][01]], [[file:AoC2025/src_lisp/puz_03.el][03]]     |
+| =for X on LIST=           | iterates tails of list                       | 09         |
+| =for X in LIST=           | iterate a list                               | most       |
+| =for X = EXPR=            | recomputed binding each pass (not iteration) | [[file:AoC2025/src_lisp/puz_01.el][01]], [[file:AoC2025/src_lisp/puz_03.el][03]]     |
+| =for N from A to B=       | numeric range (also =downto=, =below=, =by=)       | [[file:AoC2025/src_lisp/puz_02.el][02]], [[file:AoC2025/src_lisp/puz_03.el][03]], [[file:AoC2025/src_lisp/puz_04.el][04]] |
+| =for (A B) in LIST=       | destructuring — each element is a list       | [[file:AoC2025/src_lisp/puz_05.el][05]], [[file:AoC2025/src_lisp/puz_02.el][02]]     |
+| =do FORM=                 | side effect                                  | [[file:AoC2025/src_lisp/puz_01.el][01]], [[file:AoC2025/src_lisp/puz_03.el][03]]     |
+| =collect= / =sum= / =count=   | accumulate the return value                  | most       |
+| =when COND <accumulator>= | guard on an accumulation clause              | [[file:AoC2025/src_lisp/puz_02.el][02]], [[file:AoC2025/src_lisp/puz_04.el][04]]     |
+| =sum EXPR into VAR=       | *named* accumulator — several in one loop      | [[file:AoC2025/src_lisp/puz_02.el][02]]         |
+| =finally return FORM=     | what the loop hands back                     | [[file:AoC2025/src_lisp/puz_02.el][02]]         |
 
 Things worth internalising:
 
