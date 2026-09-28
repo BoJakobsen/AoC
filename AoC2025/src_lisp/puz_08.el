@@ -35,7 +35,7 @@
 ;; (puz-parse)
 
 (defun puz-sqr-diff (x1 x2)
-  "Distance squared between X1 and X,"
+  "Distance squared between X1 and X2."
   (expt (- x1 x2) 2))
 
 (defun puz-make-pairs (parsed)
@@ -75,15 +75,25 @@ Do path compression on returning."
         (aset dsize jroot (+ (aref dsize iroot) (aref dsize jroot))))
       (1- ntrees))))
 
-(defun puz-solve-part1 (parsed pairs p)
-  "Solve Part 1 using PARSED and PAIRS."
+(defun puz-tree-size (dset dsize)
+  "Find root nodes and corresponding tree size from DSET and DSIZE."
+  (sort (cl-loop for node across dset
+                 for treesize across dsize
+                 for n from 0
+                 when (= node n)
+                 collect (list treesize n))
+  :key #'car :reverse t))
+
+
+(defun puz-solve-part1 (parsed pairs nedges)
+  "Solve Part 1 using PARSED and PAIRS, NEDGES is number of nodes added."
   (let* ((ntrees (length parsed))
         (parent (vconcat (number-sequence 0 (1- ntrees)  )))
         (treesize (make-vector ntrees 1 )))
-    (cl-loop for n from 0 to p
+    (cl-loop for n from 0 below nedges
              for (s i j) in pairs
              do (puz-union parent treesize i j ntrees))
-    (cl-reduce #'*  (seq-subseq (sort treesize :reverse t) 0 3))))
+    (cl-reduce #'* (mapcar #'car (seq-subseq (puz-tree-size parent treesize) 0 3)))))
 
 (message "Solution for part 1 is = %S" (puz-solve-part1  (puz-parse) puz-pairs 999))
 
@@ -92,10 +102,9 @@ Do path compression on returning."
   (let* ((ntrees (length parsed))
         (parent (vconcat (number-sequence 0 (1- ntrees)  )))
         (treesize (make-vector ntrees 1 )))
-    (cl-loop for n from 0
-             for (s i j) in pairs
-             until (= 1 (setq ntrees (puz-union parent treesize i j ntrees)))
-             finally return (* (car (nth i parsed)) (car (nth j parsed)))))))
+    (cl-loop for (s i j) in pairs
+             until (= 1 (setq ntrees (puz-union parent treesize i j ntrees))); test for one only one tree
+             finally return (* (car (nth i parsed)) (car (nth j parsed))))))
 
 (message "Solution for part 2 is = %S" (puz-solve-part2  (puz-parse) puz-pairs))
 
