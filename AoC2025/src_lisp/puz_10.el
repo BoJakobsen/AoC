@@ -41,22 +41,43 @@
           ((rx bol "[" (let val1 (one-or-more (any ".#"))) "] "
                (let val2 (one-or-more (seq "(" (one-or-more (any "," digit)) ")" (zero-or-more space))))
                "{" (let val3 (one-or-more (any "," digit))) "}" eol)
-           (message "%s" val3)
-           (push val1 diagrams)
-           (push val2 schematics)
+           (push (string-to-number (string-replace "."  "0" (string-replace "#" "1" (nreverse val1))) 2) diagrams)
+           (push (puz-decode-schematics val2) schematics)
            (push val3 requirements))))
       (list diagrams schematics requirements ))))
 
-(puz-parse)
+(defun puz-decode-schematics (str)
+  (let ((str-list (split-string str " " t) ))
+    (mapcar  (lambda (str-but)
+               (cl-loop for num-str in (split-string (nreverse str-but) "[^0-9]+" t)
+                        sum (expt 2 (string-to-number num-str) )))
+             str-list)))
 
-(let ((test nil))
-  (push "test" test)
-  test
-  )
+;; (puz-parse)
+
+
+(defun puz-solve-one (diagram schematics)
+  (let ((N 0)
+         (seen (make-hash-table :test 'eql))
+         (leafs (list 0)))
+    (puthash 0 t seen)
+    (while (not (gethash diagram seen))
+      (cl-incf N)
+      (setq leafs (cl-loop for leaf in leafs
+                           append (cl-loop for schematic in schematics
+                                           for new-state = (logxor leaf schematic)
+                                           unless (gethash new-state seen)
+                                           do (puthash new-state t seen) and collect new-state
+                                           ))))
+    N))
 
 (defun puz-solve-part1 (parsed)
   "Solve Part 1 using PARSED."
-)
+  (let ((diagrams (nth 0 parsed))
+        (n-schematics (nth 1 parsed)))
+    (cl-loop for dia in diagrams
+             for sche in n-schematics
+             sum (puz-solve-one dia sche))))
 
 (message "Solution for part 1 is = %S" (puz-solve-part1  (puz-parse)))
 
