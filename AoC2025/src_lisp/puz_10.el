@@ -49,7 +49,7 @@
 (defun puz-decode-schematics (str)
   (let ((str-list (split-string str " " t) ))
     (mapcar  (lambda (str-but)
-               (cl-loop for num-str in (split-string (nreverse str-but) "[^0-9]+" t)
+               (cl-loop for num-str in (split-string str-but "[^0-9]+" t)
                         sum (expt 2 (string-to-number num-str) )))
              str-list)))
 
@@ -61,7 +61,7 @@
          (seen (make-hash-table :test 'eql))
          (leafs (list 0)))
     (puthash 0 t seen)
-    (while (not (gethash diagram seen))
+    (while (and leafs (not (gethash diagram seen)))
       (cl-incf N)
       (setq leafs (cl-loop for leaf in leafs
                            append (cl-loop for schematic in schematics
