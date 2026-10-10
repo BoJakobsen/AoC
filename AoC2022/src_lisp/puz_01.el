@@ -14,45 +14,41 @@
              (expand-file-name "../../helper_functions"
                                (file-name-directory
                                 (or load-file-name buffer-file-name))))
-(require 'aoc-functions) ; REMEMBER this does not reload changes from the file
 
+(require 'aoc-functions) ; REMEMBER this does not reload changes from the file
 (require 'cl-lib)
 
-
-
-;; Macro define (puz-load-data) and (puz-load-testdata) with current filenames
+;; Macro define (puz-load-data) and (puz-load-testdata)
+;; loads current data into *puz-scratch* buffer.
 (puz-loaders "../data" 01)
-;; Load puzzle data into "*puz-scratch*" buffer
 (puz-load-data) ; bound to : C-c p d
 ;;(puz-load-testdata) ; bound to : C-c p t
 
-;; For problem specific parser
+;; Problem specific parser
 (defun puz-parse ()
   "Parse `*puz-scratch*'. Return list of list of strings."
   (with-current-buffer "*puz-scratch*"
     (let ((puz-string (buffer-string))
           (parsed nil))
-      (mapcar 'split-string (split-string puz-string "\n\n" t)))))
+      (puz-mapcar2 'string-to-number (mapcar 'split-string (split-string puz-string "\n\n" t))))))
 
-(puz-parse)
+;;(puz-parse)
 
 (defun puz-solve-part1 (parsed)
   "Solve Part 1 using PARSED."
   (cl-loop for elf in parsed
            maximize (cl-loop for item in elf
-                             sum (string-to-number item))))
+                             sum item)))
 
 (message "Solution for part 1 is = %S" (puz-solve-part1 (puz-parse)))
-;(aoc-submit-answer (puz-solve-part1 (puz-parse)) 1)
+;;(aoc-submit-answer (puz-solve-part1 (puz-parse)) 1)
 
+(defun puz-solve-part2 (parsed)
+  "Solve Part 2 using PARSED."
+  (let ((total-cal (reverse (sort (mapcar (lambda (l) (apply #'+ l)) parsed)))))
+    (apply #'+ (seq-subseq total-cal 0 3 ))))
 
-
-
-
-
-
-;(aoc-submit-answer 123 2)
-
-
+(message "Solution for part 2 is = %S" (puz-solve-part2 (puz-parse)))
+(aoc-submit-answer (puz-solve-part2 (puz-parse)) 2)
 
 ;;; puz_01.el ends here
