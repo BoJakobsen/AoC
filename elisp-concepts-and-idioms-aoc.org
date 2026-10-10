@@ -167,17 +167,18 @@ Points:
 Elisp vectors are fixed-length, O(1)-indexed, and *mutable* — the closest
 thing to a numpy array for grid work.
 
-| Operation                  | Function                    |
-|----------------------------+-----------------------------|
-| Build from string/list     | =(vconcat "abc")= → =[?a ?b ?c]= |
-| Read element               | =(aref v i)=                  |
-| Write element (in place!)  | =(aset v i val)=              |
-| Length                     | =(length v)=                  |
-| Slice                      | =(seq-subseq v start end)=    |
-| Max element                | =(seq-max v)=                 |
-| Index of element           | =(seq-position v val)=        |
-| Any element satisfies?     | =(seq-some PRED seq)=         |
-| Fold                       | =(seq-reduce FN seq init)=    |
+| Operation                 | Function                     |
+|---------------------------+------------------------------|
+| Build from string/list    | =(vconcat "abc")= → =[?a ?b ?c]= |
+| Read element              | =(aref v i)=                   |
+| Write element (in place!) | =(aset v i val)=               |
+| Length                    | =(length v)=                   |
+| Slice                     | =(seq-subseq v start end)=     |
+| Take n elements           | =(take list n)=               |
+| Max element               | =(seq-max v)=                  |
+| Index of element          | =(seq-position v val)=         |
+| Any element satisfies?    | =(seq-some PRED seq)=          |
+| Fold                      | =(seq-reduce FN seq init)=     |
 
 =vconcat= on a buffer string is the cheapest way to get a whole grid into
 a random-access array — [[file:AoC2025/src_lisp/puz_04.el][puz_04]] uses =(vconcat (buffer-string))= and then
@@ -199,9 +200,10 @@ precisely to stop mutating the parsed input.
 * Sorting with keys (Emacs 30 calling convention)
 
 #+begin_src emacs-lisp
-(sort list :key #'car)                 ; new keyword style, Emacs 30+
-(sort list :key #'car :lessp #'<)      ; explicit comparator
-(sort list (lambda (a b) (< (car a) (car b))))   ; old style, still works
+  (sort list :key #'car)                 ; new keyword style, Emacs 30+
+  (sort list :reverse t)
+  (sort list :key #'car :lessp #'<)      ; explicit comparator
+  (sort list (lambda (a b) (< (car a) (car b))))   ; old style, still works
 #+end_src
 
 Used in [[file:AoC2025/src_lisp/puz_05.el][puz_05]] to sort intervals by start before merging. The =:key=

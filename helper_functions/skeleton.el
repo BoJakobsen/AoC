@@ -1,7 +1,7 @@
 ;;; puz_DD.el --- AOC YYYY Day DD -*- lexical-binding: t; -*-
 
 ;;; Commentary:
-;; Advent of Code puzzel YYYY Day DD
+;; Advent of Code puzzle YYYY Day DD
 
 ;;; Code:
 

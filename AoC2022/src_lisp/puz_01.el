@@ -1,7 +1,7 @@
 ;;; puz_01.el --- AOC 2022 Day 01 -*- lexical-binding: t; -*-
 
 ;;; Commentary:
-;; Advent of Code puzzel 2022 Day 01
+;; Advent of Code puzzle 2022 Day 01
 
 ;;; Code:
 
@@ -28,9 +28,7 @@
 (defun puz-parse ()
   "Parse `*puz-scratch*'. Return list (of elf's ) of list (of calories)."
   (with-current-buffer "*puz-scratch*"
-    (let ((puz-string (buffer-string))
-          (parsed nil))
-      (puz-mapcar2 'string-to-number (mapcar 'split-string (split-string puz-string "\n\n" t))))))
+    (puz-mapcar2 #'string-to-number (mapcar #'split-string (split-string (buffer-string) "\n\n" t)))))
 
 ;;(puz-parse)
 
@@ -46,10 +44,10 @@ Sum of calories for the elf having maximal total calories."
 
 (defun puz-solve-part2 (parsed)
   "Solve Part 2 using PARSED.
-Sum of calories for the 3 elf's carrying largest total amount of calories."
-  (let ((n-elfs 3)
-        (total-cal (reverse (sort (mapcar (lambda (l) (apply #'+ l)) parsed)))))
-    (apply #'+ (seq-subseq total-cal 0 n-elfs))))
+Sum of calories for the 3 elves carrying largest total amount of calories."
+  (let ((elves 3)
+        (total-cal (sort (mapcar (lambda (l) (apply #'+ l)) parsed) :reverse t)))
+    (apply #'+ (seq-subseq total-cal 0 elves))))
 
 (message "Solution for part 2 is = %S" (puz-solve-part2 (puz-parse)))
 ;;(aoc-submit-answer (puz-solve-part2 (puz-parse)) 2)
