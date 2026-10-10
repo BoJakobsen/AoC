@@ -42,6 +42,17 @@
            maximize (cl-loop for item in elf
                              sum (string-to-number item))))
 
-(message "Solution for part 1 is = %S" (puz-solve-part1  (puz-parse)))
+(message "Solution for part 1 is = %S" (puz-solve-part1 (puz-parse)))
+;(aoc-submit-answer (puz-solve-part1 (puz-parse)) 1)
+
+
+
+
+
+
+
+;(aoc-submit-answer 123 2)
+
+
 
 ;;; puz_01.el ends here
