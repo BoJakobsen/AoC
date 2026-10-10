@@ -102,7 +102,7 @@
 
 (defun puz-mapcar2 (fkt l)
   "Map FKT over list of lists L."
-  (mapcar '(lambda (ll) (mapcar fkt ll)) l))
+  (mapcar (lambda (ll) (mapcar fkt ll)) l))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

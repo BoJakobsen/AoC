@@ -30,7 +30,7 @@
   (with-current-buffer "*puz-scratch*"
     (puz-mapcar2 #'string-to-number (mapcar #'split-string (split-string (buffer-string) "\n\n" t)))))
 
-;;(puz-parse)
+(puz-parse)
 
 (defun puz-solve-part1 (parsed)
   "Solve Part 1 using PARSED.
