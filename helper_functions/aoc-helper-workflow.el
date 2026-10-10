@@ -82,7 +82,7 @@
 
 (defvar aoc-repo (expand-file-name "~/Projekter/AoC")
   "Root directory holding the per-year AoC<year> directories.")
-(defvar aoc-year "2025"
+(defvar aoc-year "2022"
   "Challenge year as a string.  Set to nil to use the current year.")
 (defvar aoc-src-dir "src_lisp"
   "Sub-directory under AoC<year> holding the Lisp solution files.")
@@ -106,7 +106,7 @@
 Returns just a User-Agent header when no cookie file exists, so public
 part-1 descriptions can still be fetched."
   (let ((agent (cons "User-Agent"
-                     "https://github.com/BoJakobsen by e_claude@f77.dk")))
+                     "https://github.com/BoJakobsen by boj@boj.dk")))
     (if (file-exists-p aoc-cookie)
         (let ((cookie (with-temp-buffer
                         (insert-file-contents aoc-cookie)
