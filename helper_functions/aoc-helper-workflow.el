@@ -196,21 +196,23 @@ Uses the session cookie when present; part 1 is public without it."
       (delete-file tmp))))
 
 ;;;###autoload
-(defun aoc-get-description (day)
+(defun aoc-get-description (day &optional year )
   "(Re)fetch the puzzle description for DAY of `aoc-year' and open it.
 Unlike `aoc-do-day', this always overwrites the Org file, so run it
 after solving part 1 to pull in part 2."
   (interactive (list (read-number "Which day: ")))
   (unless (< 0 day 26) (error "Invalid day; must be in range [1,25]."))
-  (let* ((year (or aoc-year (format-time-string "%Y")))
+  (let* ((year (or year aoc-year (format-time-string "%Y")))
          (srcdir (expand-file-name
                   aoc-src-dir
                   (expand-file-name (format "AoC%s" year) aoc-repo)))
          (desc (expand-file-name (format aoc-desc-file day) srcdir)))
     (aoc-fetch-description year day desc)
+    (when-let ((buf (get-file-buffer desc)))
+      (with-current-buffer buf (revert-buffer t t t)))
     (find-file desc)
-    (revert-buffer t t)          ; show the freshly written file if reopened
-    (message "Fetched description for %s day %s" year day)))
+    (message "Fetched description for %s day %s" year day)
+    ))
 
 (defun aoc--example-at-point ()
   "Return the text inside the Org #+begin_.../#+end_ block around point.
@@ -308,6 +310,72 @@ shown in a side window."
           ((file-exists-p input)
            (find-file-other-window input)
            (other-window 1)))))
+
+
+(defvar url-http-end-of-headers)   ; buffer-local in url-http; silences the byte-compiler
+
+(defun aoc--post-answer (year day level answer)
+  "POST ANSWER for LEVEL of YEAR/DAY; return the response body as a string."
+  (let* ((url-request-method "POST")
+         (url-request-extra-headers
+          (cons '("Content-Type" . "application/x-www-form-urlencoded")
+                (aoc--session-headers)))
+         (url-request-data
+          (encode-coding-string
+           (format "level=%d&answer=%s" level
+                   (url-hexify-string (format "%s" answer)))
+           'utf-8))
+         (buf (url-retrieve-synchronously
+               (format "https://adventofcode.com/%s/day/%s/answer" year day)
+               t)))                        ; t = silent
+    (unwind-protect
+        (with-current-buffer buf
+          (decode-coding-string
+           (buffer-substring-no-properties url-http-end-of-headers (point-max))
+           'utf-8))
+      (kill-buffer buf))))
+
+(defun aoc--parse-answer-response (html)
+  "Parse the response, result is message text."
+  (let ((text (when (string-match "<article>\\(\\(?:.\\|\n\\)*?\\)</article>" html)
+    (string-trim (replace-regexp-in-string "<[^>]+>" "" (match-string 1 html)))) ))
+    (pcase text
+      ((rx "That's the right answer")
+       (cons 'right  "RIGHT answer"))
+      ((rx "your answer is too low")
+       (cons 'wrong  "WRONG answer, your answer is too low"))       
+      ((rx "your answer is too high")
+       (cosn 'wrong "WRONG answer, your answer is too high"))
+      ((rx "You have" (let val (+? nonl)) "left to wait.")
+       (cons 'wrong  (format "WAIT another: %s" (string-trim val))))
+      ('nil
+       (cons 'wrong "No <article> in response (expired session cookie?)"))
+      (_
+       (cons 'wrong text)))))
+
+(defun aoc-submit-answer (answer &optional level)
+  (let* ((level (or level 1))
+         (elfile (or (buffer-file-name)
+                     (user-error "Buffer is not visiting a file")))
+         (base (file-name-nondirectory elfile))
+         (day (if (string-match "\\([0-9]+\\)" base)
+                  (string-to-number (match-string 1 base))
+                (user-error "Cannot determine the day from %s" base)))
+         ;; org lives in <year>/<src>/; its grandparent is the year directory.
+         (yeardir (file-name-directory
+                   (directory-file-name (file-name-directory elfile))))
+         (year (let ((name (file-name-nondirectory (directory-file-name yeardir))))
+                 (if (string-match "\\`AoC\\([0-9]\\{4\\}\\)\\'" name)
+                     (match-string 1 name)
+                   (user-error "Cannot determine the year from %s" name)))))
+    (when (y-or-n-p (format "Submit answer %s for level %s day %s / %s?" answer level day year))
+      (pcase (aoc--parse-answer-response (aoc--post-answer year day level answer))
+        (`(right . ,msg)
+         (aoc-get-description day)
+         (message "⭐ %s" msg))
+        (`(,_ . ,msg)
+         (message "%s" msg))))))
+
 
 
 (provide 'aoc-helper-workflow)
