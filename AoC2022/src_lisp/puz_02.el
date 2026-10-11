@@ -15,7 +15,7 @@
 ;;  1 - 2 = -1 = 2  (A loos)
 ;;  1 - 0 = 1       (A win)
 ;;  2 - 0 = 2       (A Loos)
-;;  2 - 1 =         (A win) 
+;;  2 - 1 =         (A win)
 
 ;; Therefore logic is:
 ;; (A - B mod 3 = res)
@@ -84,7 +84,8 @@
 
 ;; Cleaner, inspired by AI code-review
 (defun puz-solve-part1b (parsed)
-  "Solve Part 1 using PARSED."
+  "Solve Part 1 using PARSED.
+Score is encodes as array mapping fund res values to point value."
   (let ((score  [3 6 0]))
    (cl-loop for (them me) in parsed
            for res = (mod (- me them) 3)
@@ -93,15 +94,19 @@
 
 (message "Solution for part 1 (b) is = %S" (puz-solve-part1b  (puz-parse)))
 
-
 (defun puz-solve-part2 (parsed)
-  "Solve Part 2 using PARSED."
-  (let (())
-    nil
-    ))
+  "Solve Part 2 using PARSED.
+Same logic as in par 1, modulus calculations just works.
+A mapping from X,Y,Z -> res is needed to conform to the new changed logic."
+  (let ((mapres [2 0 1])   ; map X,Y,Z to loos (2), draw (0), win (1)
+        (score  [3 6 0]))
+   (cl-loop for (them residx) in parsed
+            for res = (aref mapres residx)
+            for me = (mod (+ res them) 3)   ;; res = me - them   mod 3
+            sum (+ (1+ me) (aref score res))
+            )))
 
 (message "Solution for part 2 is = %S" (puz-solve-part2 (puz-parse)))
 ;; (aoc-submit-answer (puz-solve-part2 (puz-parse)) 2)
-
 
 ;;; puz_02.el ends here
