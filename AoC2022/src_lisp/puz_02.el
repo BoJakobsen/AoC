@@ -4,12 +4,12 @@
 ;; Advent of Code puzzle 2022 Day 02
 
 
-;; Look at numerical encoding
+;; Numerical encoding
 
 ;; Rock = 0, paper = 1, scissor = 2
 
 ;;  (<- 0 <- 1 <- 2 )
-;; calculate A - B mod 3
+;;  A - B mod 3
 ;;  0 - 1 = -1 = 2  (A loos)
 ;;  0 - 2 = -2 = 1  (A win)
 ;;  1 - 2 = -1 = 2  (A loos)
@@ -17,11 +17,11 @@
 ;;  2 - 0 = 2       (A Loos)
 ;;  2 - 1 =         (A win) 
 
-;; So A - B mod 3 gives
+;; Therefore logic is:
+;; (A - B mod 3 = res)
 ;; 0 Tie
 ;; 1 A win
 ;; 2 A Loos
-
 
 ;;; Code:
 
@@ -44,16 +44,27 @@
 (puz-load-data) ; 
 
 ;; Problem specific parser
+;; works but now very pity
+;; (defun puz-parse ()
+;;   "Parse `*puz-scratch*'."
+;;   (with-current-buffer "*puz-scratch*"
+;;     (let* ((dat (string-replace "A" "0" (buffer-string)))
+;;            (dat (string-replace "B" "1" dat))
+;;            (dat (string-replace "C" "2" dat))
+;;            (dat (string-replace "X" "0" dat))
+;;            (dat (string-replace "Y" "1" dat))
+;;            (dat (string-replace "Z" "2" dat)))
+;;       (puz-mapcar2 #'string-to-number (mapcar #'split-string (split-string dat "\n" t))))))
+
+
+;; Problem specific parser
+;; Simplified after AI code-review.
 (defun puz-parse ()
   "Parse `*puz-scratch*'."
   (with-current-buffer "*puz-scratch*"
-    (let* ((dat (string-replace "A" "0" (buffer-string)))
-           (dat (string-replace "B" "1" dat))
-           (dat (string-replace "C" "2" dat))
-           (dat (string-replace "X" "0" dat))
-           (dat (string-replace "Y" "1" dat))
-           (dat (string-replace "Z" "2" dat)))
-      (puz-mapcar2 #'string-to-number (mapcar #'split-string (split-string dat "\n" t))))))
+    (let* ((dat (split-string (buffer-string) "\n" t)))
+      (mapcar (lambda (line) (list (- (aref line 0) ?A) (- (aref line 2) ?X  )) ) dat)
+      )))
 
 ;;(puz-parse)
 
@@ -70,6 +81,18 @@
 
 (message "Solution for part 1 is = %S" (puz-solve-part1  (puz-parse)))
 ;;(aoc-submit-answer (puz-solve-part1 (puz-parse)) 1)
+
+;; Cleaner, inspired by AI code-review
+(defun puz-solve-part1b (parsed)
+  "Solve Part 1 using PARSED."
+  (let ((score  [3 6 0]))
+   (cl-loop for (them me) in parsed
+           for res = (mod (- me them) 3)
+           sum (+ (1+ me) (aref score res))
+           )))
+
+(message "Solution for part 1 (b) is = %S" (puz-solve-part1b  (puz-parse)))
+
 
 (defun puz-solve-part2 (parsed)
   "Solve Part 2 using PARSED."
