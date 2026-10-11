@@ -15,7 +15,7 @@
 ;;  1 - 2 = -1 = 2  (A loos)
 ;;  1 - 0 = 1       (A win)
 ;;  2 - 0 = 2       (A Loos)
-;;  2 - 1 =         (A win)
+;;  2 - 1 = 1       (A win)
 
 ;; Therefore logic is:
 ;; (A - B mod 3 = res)
@@ -62,49 +62,47 @@
 (defun puz-parse ()
   "Parse `*puz-scratch*'."
   (with-current-buffer "*puz-scratch*"
-    (let* ((dat (split-string (buffer-string) "\n" t)))
+    (let ((dat (split-string (buffer-string) "\n" t)))
       (mapcar (lambda (line) (list (- (aref line 0) ?A) (- (aref line 2) ?X  )) ) dat)
       )))
 
 ;;(puz-parse)
 
-(defun puz-solve-part1 (parsed)
-  "Solve Part 1 using PARSED."
-  (cl-loop for (A B) in parsed
-           for res = (mod (- B A) 3)
-           if (= res 0) ; draw
-           sum (+ (1+ B) 3)
-           if (= res 1) ;; you win
-           sum (+ (1+ B) 6)
-           if (= res 2) ;; you loos
-           sum (1+ B)))
+;; (defun puz-solve-part1 (parsed)
+;;   "Solve Part 1 using PARSED."
+;;   (cl-loop for (A B) in parsed
+;;            for res = (mod (- B A) 3)
+;;            if (= res 0) ; draw
+;;            sum (+ (1+ B) 3)
+;;            if (= res 1) ;; you win
+;;            sum (+ (1+ B) 6)
+;;            if (= res 2) ;; you loos
+;;            sum (1+ B)))
 
-(message "Solution for part 1 is = %S" (puz-solve-part1  (puz-parse)))
-;;(aoc-submit-answer (puz-solve-part1 (puz-parse)) 1)
+;; (message "Solution for part 1 is = %S" (puz-solve-part1  (puz-parse)))
 
 ;; Cleaner, inspired by AI code-review
 (defun puz-solve-part1b (parsed)
   "Solve Part 1 using PARSED.
-Score is encodes as array mapping fund res values to point value."
+Score is encoded as an array, mapping fund res to point value."
   (let ((score  [3 6 0]))
    (cl-loop for (them me) in parsed
            for res = (mod (- me them) 3)
-           sum (+ (1+ me) (aref score res))
-           )))
+           sum (+ (1+ me) (aref score res)))))
 
 (message "Solution for part 1 (b) is = %S" (puz-solve-part1b  (puz-parse)))
+;;(aoc-submit-answer (puz-solve-part1b (puz-parse)) 1)
 
 (defun puz-solve-part2 (parsed)
   "Solve Part 2 using PARSED.
-Same logic as in par 1, modulus calculations just works.
+Same logic as in part 1, modulus calculations just works.
 A mapping from X,Y,Z -> res is needed to conform to the new changed logic."
-  (let ((mapres [2 0 1])   ; map X,Y,Z to loos (2), draw (0), win (1)
+  (let ((mapres [2 0 1])   ; map X,Y,Z to lose (2), draw (0), win (1)
         (score  [3 6 0]))
    (cl-loop for (them residx) in parsed
             for res = (aref mapres residx)
             for me = (mod (+ res them) 3)   ;; res = me - them   mod 3
-            sum (+ (1+ me) (aref score res))
-            )))
+            sum (+ (1+ me) (aref score res)))))
 
 (message "Solution for part 2 is = %S" (puz-solve-part2 (puz-parse)))
 ;; (aoc-submit-answer (puz-solve-part2 (puz-parse)) 2)
