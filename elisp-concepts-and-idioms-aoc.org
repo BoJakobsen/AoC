@@ -492,3 +492,17 @@ Visible in the files, in order:
 
 Each day's file deliberately keeps the earlier attempts alongside the
 refined ones — the point was the comparison, not the answer.
+
+
+* INBOX
+
+Some RX magic, day 2 2022, not fast but nice demo
+
+#+begin_src emacs-lisp
+  (let ((case-fold-search nil)
+        (s "vJrwpWtwJgWr hcsFMMfFFhFp"))
+    (when (string-match (rx bos (zero-or-more alpha) (group alpha) (zero-or-more
+   alpha) " " (zero-or-more alpha) (backref 1) (zero-or-more alpha) eos) s )
+      (match-string 1 s)))
+#+end_src
+
