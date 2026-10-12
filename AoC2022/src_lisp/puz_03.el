@@ -26,7 +26,7 @@
 ;; Problem specific parser
 (defun puz-parse ()
   "Parse `*puz-scratch*'.
-Almost not necessary just list of the lines"
+Almost not necessary just gives a list of the lines"
   (with-current-buffer "*puz-scratch*"
     (let ((puz-string (buffer-string)))
       (split-string puz-string))))
@@ -34,7 +34,7 @@ Almost not necessary just list of the lines"
 ;; (puz-parse)
 
 (defun puz-score (item)
-  "Score function. a - z : 1 - 26, A -Z : 27 - 52." 
+  "Score function on ITEM: a - z : 1 - 26, A -Z : 27 - 52." 
   (if (<= ?a item)
       (+ (- item ?a) 1)
     (+ (- item ?A) 27)))
@@ -50,13 +50,12 @@ Each rucksack is split in half and items in both parts scored."
 ;;(aoc-submit-answer (puz-solve-part1 (puz-parse)) 1)
 
 (defun puz-solve-part2 (parsed)
-  "Solve Part 2 using PARSED."
-  (let (())
-    nil
-    ))
+  "Solve Part 2 using PARSED.
+Split Elves into groups of 3 and find unique item in all three rucksacks (3 set union) ."
+  (cl-loop for group in (seq-split parsed 3)
+           sum (puz-score (car (seq-uniq (seq-intersection (apply #'seq-intersection (seq-subseq group 0 2)) (nth 2  group)))))))
 
 (message "Solution for part 2 is = %S" (puz-solve-part2 (puz-parse)))
-;; (aoc-submit-answer (puz-solve-part2 (puz-parse)) 2)
-
+;;(aoc-submit-answer (puz-solve-part2 (puz-parse)) 2)
 
 ;;; puz_03.el ends here
