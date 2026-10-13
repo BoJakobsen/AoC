@@ -27,15 +27,33 @@ Helper library shared across years:
 * Problem index — key concept per puzzle
 ** AoC 2025 ([[file:AoC2025/src_lisp/][src_lisp]])
 
-| Day | Problem shape                     | Key elisp concepts exercised                                                                                  |
-|-----+-----------------------------------+---------------------------------------------------------------------------------------------------------------|
-| [[file:AoC2025/src_lisp/puz_01.el][01]]  | Rotating dial, count zeros        | =dolist= vs =cl-loop= vs =seq-reduce= — same solve three ways; =funcall= on a chosen =#'+= / =#'-=; =mod= / =floor=           |
-| [[file:AoC2025/src_lisp/puz_02.el][02]]  | Numbers made of repeated blocks   | =rx= with =group= + =backref=; =string-match-p=; =defconst= for a regexp; two accumulators in one =cl-loop=               |
-| [[file:AoC2025/src_lisp/puz_03.el][03]]  | Greedy max digit selection        | Vectors (=vconcat=, =aref=); =seq-max= / =seq-position= / =seq-subseq=; Horner via =seq-reduce=; structural recursion     |
-| [[file:AoC2025/src_lisp/puz_04.el][04]]  | Grid neighbour counting / erosion | Buffer *as* a grid: position+offset arithmetic; =char-after=; in-place =aset= on a vector; benchmarking + profiling |
-| [[file:AoC2025/src_lisp/puz_05.el][05]]  | Interval merging                  | =sort= with =:key=; =seq-some=; fold-into-accumulator with =seq-reduce=; =cl-loop= destructuring =for (a b) in=           |
-| [[file:AoC2025/src_lisp/puz_06.el][06]]  | Columnar operator/operand table   | =apply= + =cl-mapcar= as transpose; =intern-soft= for string→function dispatch; =last= / =butlast=; =cl-reduce=           |
-| [[file:AoC2025/src_lisp/puz_11.el][11]]  | Path counting in a DAG            | Hash tables as memo cache; the =or= / =puthash= idiom; =cl-labels= closure factory; dynamically bound cache         |
+| Day     | Problem shape                                | Key elisp concepts exercised                                                                                                                                       |
+|---------+----------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [[file:AoC2025/src_lisp/puz_01.el][2025-01]] | Rotating dial, count zeros                   | =dolist= vs =cl-loop= vs =seq-reduce= — same solve three ways; =funcall= on a chosen =#'+= / =#'-=; =mod= / =floor=                                                |
+| [[file:AoC2025/src_lisp/puz_02.el][2025-02]] | Numbers made of repeated blocks              | =rx= with =group= + =backref=; =string-match-p=; =defconst= for a regexp; two accumulators in one =cl-loop=                                                        |
+| [[file:AoC2025/src_lisp/puz_03.el][2025-03]] | Greedy max digit selection                   | Vectors (=vconcat=, =aref=); =seq-max= / =seq-position= / =seq-subseq=; Horner via =seq-reduce=; structural recursion                                              |
+| [[file:AoC2025/src_lisp/puz_04.el][2025-04]] | Grid neighbour counting / erosion            | Buffer *as* a grid: position+offset arithmetic; =char-after=; in-place =aset= on a vector; benchmarking + profiling                                                |
+| [[file:AoC2025/src_lisp/puz_05.el][2025-05]] | Interval merging                             | =sort= with =:key=; =seq-some=; fold-into-accumulator with =seq-reduce=; =cl-loop= destructuring =for (a b) in=                                                    |
+| [[file:AoC2025/src_lisp/puz_06.el][2025-06]] | Columnar operator/operand table              | =apply= + =cl-mapcar= as transpose; =intern-soft= for string→function dispatch; =last= / =butlast=; =cl-reduce=                                                    |
+| [[file:AoC2025/src_lisp/puz_07.el][2025-07]] | Beam splitting down a grid                   | Grid as flat vector + stride arithmetic; hash table as visited set (part 1) vs memo cache (part 2); bare =defvar= + =let= for a dynamic cache                      |
+| [[file:AoC2025/src_lisp/puz_08.el][2025-08]] | Closest pairs → connected circuits           | Union-find on two vectors (=make-vector=, =number-sequence=); =aset= returns its value → one-line path compression; =cl-loop= =on= / =append= / =across= / =until= |
+| [[file:AoC2025/src_lisp/puz_09.el][2025-09]] | Largest rectangle inside a polygon           | Coordinate compression; flat vector as 2D grid; flood fill with =push= / =pop= stack; summed-area table; =cl-loop= =maximize=, =across-ref= + =setf=               |
+| [[file:AoC2025/src_lisp/puz_10.el][2025-10]] | Light toggling, fewest presses (part 1 only) | =pcase= with =rx= pattern + =(let VAR ...)= as parser; bitmask state with =logxor=; =string-to-number= base 2; level-by-level BFS with hash-table seen set         |
+| [[file:AoC2025/src_lisp/puz_11.el][2025-11]] | Path counting in a DAG                       | Hash tables as memo cache; the =or= / =puthash= idiom; =cl-labels= closure factory; dynamically bound cache                                                        |
+
+** AoC 2024 ([[file:AoC2024/src_lisp/][src_lisp]])
+
+| Day     | Problem shape                    | Key elisp concepts exercised                                                                                                                  |
+|---------+----------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------|
+| [[file:AoC2024/src_lisp/puz_17.el][2024-17]] | 3-bit CPU emulator (part 1 only) | =cl-defstruct= + =setf= / =cl-incf= / =push= on accessors; =pcase= dispatch with literals, =guard= and catch-all; =ash= / =logand= / =logxor= |
+
+** AoC 2022 ([[file:AoC2022/src_lisp/][src_lisp]])
+
+| Day     | Problem shape               | Key elisp concepts exercised                                                                                            |
+|---------+-----------------------------+-------------------------------------------------------------------------------------------------------------------------|
+| [[file:AoC2022/src_lisp/puz_01.el][2022-01]] | Sum groups, pick top n      | Nested =mapcar= (=puz-mapcar2= helper); nested =cl-loop= =maximize= / =sum=; =sort :reverse t= + =seq-subseq= for top-n |
+| [[file:AoC2022/src_lisp/puz_02.el][2022-02]] | Rock-paper-scissors scoring | Char arithmetic =(- c ?A)= as parser; vector literal as lookup table; =mod= 3 for the cyclic win/lose logic             |
+| [[file:AoC2022/src_lisp/puz_03.el][2022-03]] | Common item across strings  | =seq-split=, =seq-intersection=, =seq-uniq= directly on strings; =apply= over the split; chars as integers for scoring  |
 
 
 
@@ -44,27 +62,27 @@ Helper library shared across years:
 =cl-loop= turned out to be the single biggest win of the year. It is a
 whole DSL; the clauses actually used:
 
-| Clause                  | Does                                         | Seen in    |
-|-------------------------+----------------------------------------------+------------|
-| =with VAR = INIT=         | one-shot local, before the loop starts       | [[file:AoC2025/src_lisp/puz_01.el][01]], [[file:AoC2025/src_lisp/puz_03.el][03]]     |
-| =for X on LIST=           | iterates tails of list                       | 09         |
-| =for X in LIST=           | iterate a list                               | most       |
-| =for X = EXPR=            | recomputed binding each pass (not iteration) | [[file:AoC2025/src_lisp/puz_01.el][01]], [[file:AoC2025/src_lisp/puz_03.el][03]]     |
-| =for N from A to B=       | numeric range (also =downto=, =below=, =by=)       | [[file:AoC2025/src_lisp/puz_02.el][02]], [[file:AoC2025/src_lisp/puz_03.el][03]], [[file:AoC2025/src_lisp/puz_04.el][04]] |
-| =for (A B) in LIST=       | destructuring — each element is a list       | [[file:AoC2025/src_lisp/puz_05.el][05]], [[file:AoC2025/src_lisp/puz_02.el][02]]     |
-| =do FORM=                 | side effect                                  | [[file:AoC2025/src_lisp/puz_01.el][01]], [[file:AoC2025/src_lisp/puz_03.el][03]]     |
-| =collect= / =sum= / =count=   | accumulate the return value                  | most       |
-| =when COND <accumulator>= | guard on an accumulation clause              | [[file:AoC2025/src_lisp/puz_02.el][02]], [[file:AoC2025/src_lisp/puz_04.el][04]]     |
-| =sum EXPR into VAR=       | *named* accumulator — several in one loop      | [[file:AoC2025/src_lisp/puz_02.el][02]]         |
-| =finally return FORM=     | what the loop hands back                     | [[file:AoC2025/src_lisp/puz_02.el][02]]         |
+| Clause                      | Does                                         | Seen in                   |
+|-----------------------------+----------------------------------------------+---------------------------|
+| =with VAR = INIT=           | one-shot local, before the loop starts       | [[file:AoC2025/src_lisp/puz_01.el][2025-01]], [[file:AoC2025/src_lisp/puz_03.el][2025-03]]          |
+| =for X on LIST=             | iterates tails of list                       | [[file:AoC2025/src_lisp/puz_08.el][2025-08]], [[file:AoC2025/src_lisp/puz_09.el][2025-09]]          |
+| =for X in LIST=             | iterate a list                               | most                      |
+| =for X = EXPR=              | recomputed binding each pass (not iteration) | [[file:AoC2025/src_lisp/puz_01.el][2025-01]], [[file:AoC2025/src_lisp/puz_03.el][2025-03]]          |
+| =for N from A to B=         | numeric range (also =downto=, =below=, =by=) | [[file:AoC2025/src_lisp/puz_02.el][2025-02]], [[file:AoC2025/src_lisp/puz_03.el][2025-03]], [[file:AoC2025/src_lisp/puz_04.el][2025-04]] |
+| =for (A B) in LIST=         | destructuring — each element is a list       | [[file:AoC2025/src_lisp/puz_05.el][2025-05]], [[file:AoC2025/src_lisp/puz_02.el][2025-02]]          |
+| =do FORM=                   | side effect                                  | [[file:AoC2025/src_lisp/puz_01.el][2025-01]], [[file:AoC2025/src_lisp/puz_03.el][2025-03]]          |
+| =collect= / =sum= / =count= | accumulate the return value                  | most                      |
+| =when COND <accumulator>=   | guard on an accumulation clause              | [[file:AoC2025/src_lisp/puz_02.el][2025-02]], [[file:AoC2025/src_lisp/puz_04.el][2025-04]]          |
+| =sum EXPR into VAR=         | *named* accumulator — several in one loop    | [[file:AoC2025/src_lisp/puz_02.el][2025-02]]                   |
+| =finally return FORM=       | what the loop hands back                     | [[file:AoC2025/src_lisp/puz_02.el][2025-02]]                   |
 
 Things worth internalising:
 
 Deconstruction works at many levels, which is very handy
 
 *Multiple =for= clauses iterate in parallel, not nested.* They stop at
-the shortest. This is how [[file:AoC2025/src_lisp/puz_06.el][puz_06]] walks an operator list and an
-operand list together, and how [[file:AoC2025/src_lisp/puz_06.el][puz_06 part 1]] walked five rows at once:
+the shortest. This is how [[file:AoC2025/src_lisp/puz_06.el][2025 puz_06]] walks an operator list and an
+operand list together, and how [[file:AoC2025/src_lisp/puz_06.el][2025 puz_06 part 1]] walked five rows at once:
 
 #+begin_src emacs-lisp
 (cl-loop for op in ops
@@ -73,7 +91,7 @@ operand list together, and how [[file:AoC2025/src_lisp/puz_06.el][puz_06 part 1]
 #+end_src
 
 *Named accumulators let one pass compute both puzzle parts.* From
-[[file:AoC2025/src_lisp/puz_02.el][puz_02]] — one scan of the range, two sums:
+[[file:AoC2025/src_lisp/puz_02.el][2025 puz_02]] — one scan of the range, two sums:
 
 #+begin_src emacs-lisp
 (cl-loop for num from low to high
@@ -85,7 +103,7 @@ operand list together, and how [[file:AoC2025/src_lisp/puz_06.el][puz_06 part 1]
 
 Gotcha: =count= counts *true results of its own expression*, it does not
 just tick per iteration — =when COND count EXPR= counts passes where both
-are true. See =puz-solve-part1d= in [[file:AoC2025/src_lisp/puz_04.el][puz_04]].
+are true. See =puz-solve-part1d= in [[file:AoC2025/src_lisp/puz_04.el][2025 puz_04]].
 
 Example of standard "loop over pairs", also using deconstruction 
 #+begin_src emacs-lisp   
@@ -101,24 +119,24 @@ Example of standard "loop over pairs", also using deconstruction
 
 * cl-lib functions picked up
 
-| Function                     | What it does                                       | Seen in    |
-|------------------------------+----------------------------------------------------+------------|
-| =(cl-incf PLACE &optional N)=  | increment in place — replaces =(setq x (1+ x))=      | [[file:AoC2025/src_lisp/puz_02.el][02]], [[file:AoC2025/src_lisp/puz_04.el][04]], [[file:AoC2025/src_lisp/puz_11.el][11]] |
-| =(cl-count ITEM SEQ)=          | count occurrences in any sequence (incl. a string) | [[file:AoC2025/src_lisp/puz_04.el][04]]         |
-| =(cl-first L)= / =(cl-second L)= | readable =car= / =cadr=                                | [[file:AoC2025/src_lisp/puz_02.el][02]]         |
-| =(cl-reduce FN LIST)=          | fold; =(cl-reduce #'+ xs)= sums                      | [[file:AoC2025/src_lisp/puz_06.el][06]]         |
-| =(cl-mapcar FN L1 L2 ...)=     | =mapcar= over *several* lists in lockstep              | [[file:AoC2025/src_lisp/puz_06.el][06]]         |
-| =cl-labels=                    | local *function* definitions, can be recursive       | [[file:AoC2025/src_lisp/puz_11.el][11]]         |
-| =cl-floor=                     | quotient and remainder as a list                   | —          |
+| Function                         | What it does                                       | Seen in                   |
+|----------------------------------+----------------------------------------------------+---------------------------|
+| =(cl-incf PLACE &optional N)=    | increment in place — replaces =(setq x (1+ x))=    | [[file:AoC2025/src_lisp/puz_02.el][2025-02]], [[file:AoC2025/src_lisp/puz_04.el][2025-04]], [[file:AoC2025/src_lisp/puz_11.el][2025-11]] |
+| =(cl-count ITEM SEQ)=            | count occurrences in any sequence (incl. a string) | [[file:AoC2025/src_lisp/puz_04.el][2025-04]]                   |
+| =(cl-first L)= / =(cl-second L)= | readable =car= / =cadr=                            | [[file:AoC2025/src_lisp/puz_02.el][2025-02]]                   |
+| =(cl-reduce FN LIST)=            | fold; =(cl-reduce #'+ xs)= sums                    | [[file:AoC2025/src_lisp/puz_06.el][2025-06]]                   |
+| =(cl-mapcar FN L1 L2 ...)=       | =mapcar= over *several* lists in lockstep          | [[file:AoC2025/src_lisp/puz_06.el][2025-06]]                   |
+| =cl-labels=                      | local *function* definitions, can be recursive     | [[file:AoC2025/src_lisp/puz_11.el][2025-11]]                   |
+| =cl-floor=                       | quotient and remainder as a list                   | —                         |
 
 =cl-labels= vs =let=: a =let=-bound lambda cannot easily call itself (the
 name isn't in scope inside its own body). =cl-labels= binds real function
 names that *are* visible inside each other — that is what makes the
-closure factory in [[file:AoC2025/src_lisp/puz_11.el][puz_11]] possible.
+closure factory in [[file:AoC2025/src_lisp/puz_11.el][2025 puz_11]] possible.
 
 * apply, funcall and dynamic function names
 
-Three separate tricks that all showed up in [[file:AoC2025/src_lisp/puz_06.el][puz_06]]:
+Three separate tricks that all showed up in [[file:AoC2025/src_lisp/puz_06.el][2025 puz_06]]:
 
 *String → function.* =(intern-soft "max")= returns the symbol =max= if it
 already exists (=intern= would create it — =intern-soft= is the safe one
@@ -143,12 +161,12 @@ call. Reading a grid column-wise for free.
 
 *apply has an argument limit.* =(apply #'+ list)= is fine for a few
 hundred elements but blows past =max-args= for big lists; =(cl-reduce #'+
-list)= folds pairwise instead and has no limit. Noted in [[file:AoC2025/src_lisp/puz_06.el][puz_06]] when
+list)= folds pairwise instead and has no limit. Noted in [[file:AoC2025/src_lisp/puz_06.el][2025 puz_06]] when
 going from =apply #'+= to =cl-reduce #'+=.
 
 * rx: groups and back-references
 
-[[file:AoC2025/src_lisp/puz_02.el][puz_02]] needed "digits that are some block repeated" — a back-reference
+[[file:AoC2025/src_lisp/puz_02.el][2025 puz_02]] needed "digits that are some block repeated" — a back-reference
 problem:
 
 #+begin_src emacs-lisp
@@ -174,24 +192,24 @@ Points:
 Elisp vectors are fixed-length, O(1)-indexed, and *mutable* — the closest
 thing to a numpy array for grid work.
 
-| Operation                 | Function                     |
-|---------------------------+------------------------------|
+| Operation                 | Function                         |
+|---------------------------+----------------------------------|
 | Build from string/list    | =(vconcat "abc")= → =[?a ?b ?c]= |
-| Read element              | =(aref v i)=                   |
-| Write element (in place!) | =(aset v i val)=               |
-| Length                    | =(length v)=                   |
-| Slice                     | =(seq-subseq v start end)=     |
-| Take n elements           | =(take list n)=               |
-| Max element               | =(seq-max v)=                  |
-| Index of element          | =(seq-position v val)=         |
-| Any element satisfies?    | =(seq-some PRED seq)=          |
-| Fold                      | =(seq-reduce FN seq init)=     |
+| Read element              | =(aref v i)=                     |
+| Write element (in place!) | =(aset v i val)=                 |
+| Length                    | =(length v)=                     |
+| Slice                     | =(seq-subseq v start end)=       |
+| Take n elements           | =(take list n)=                  |
+| Max element               | =(seq-max v)=                    |
+| Index of element          | =(seq-position v val)=           |
+| Any element satisfies?    | =(seq-some PRED seq)=            |
+| Fold                      | =(seq-reduce FN seq init)=       |
 
 =vconcat= on a buffer string is the cheapest way to get a whole grid into
-a random-access array — [[file:AoC2025/src_lisp/puz_04.el][puz_04]] uses =(vconcat (buffer-string))= and then
+a random-access array — [[file:AoC2025/src_lisp/puz_04.el][2025 puz_04]] uses =(vconcat (buffer-string))= and then
 does the whole erosion simulation with =aref= / =aset=.
 
-Horner's method as a one-liner fold, from [[file:AoC2025/src_lisp/puz_03.el][puz_03]] — digits to number:
+Horner's method as a one-liner fold, from [[file:AoC2025/src_lisp/puz_03.el][2025 puz_03]] — digits to number:
 
 #+begin_src emacs-lisp
 (seq-reduce (lambda (a b) (+ (* 10 a) b)) vec 0)
@@ -200,7 +218,7 @@ Horner's method as a one-liner fold, from [[file:AoC2025/src_lisp/puz_03.el][puz
 Destructive vs. non-destructive: =nreverse= reuses the cons cells (fast,
 but the input list is garbage afterwards), =reverse= copies. =push= +
 =nreverse= is the standard accumulate-and-fix-order pair. Using =nreverse=
-on a list you still need later is a classic self-inflicted bug — [[file:AoC2025/src_lisp/puz_06.el][puz_06]]
+on a list you still need later is a classic self-inflicted bug — [[file:AoC2025/src_lisp/puz_06.el][2025 puz_06]]
 was refactored from =(nreverse parsed)= + =pop= to =last= / =butlast=
 precisely to stop mutating the parsed input.
 
@@ -213,13 +231,13 @@ precisely to stop mutating the parsed input.
   (sort list (lambda (a b) (< (car a) (car b))))   ; old style, still works
 #+end_src
 
-Used in [[file:AoC2025/src_lisp/puz_05.el][puz_05]] to sort intervals by start before merging. The =:key=
+Used in [[file:AoC2025/src_lisp/puz_05.el][2025 puz_05]] to sort intervals by start before merging. The =:key=
 form is much closer to Python's =sorted(xs, key=...)= and avoids writing
 the comparator by hand. Note =sort= may destructively reuse the input.
 
 * Interval merging as a fold
 
-A pattern worth remembering beyond AoC — from [[file:AoC2025/src_lisp/puz_05.el][puz_05]]. Once the list is
+A pattern worth remembering beyond AoC — from [[file:AoC2025/src_lisp/puz_05.el][2025 puz_05]]. Once the list is
 sorted by start, overlap testing collapses to a single comparison, and
 the whole merge is a =seq-reduce= where the accumulator is the merged list
 built backwards:
@@ -249,7 +267,7 @@ a clean fold.
 
 *The memo idiom.* Because =puthash= returns the stored value and =or=
 short-circuits, a whole memoized recursion fits in one expression
-([[file:AoC2025/src_lisp/puz_11.el][puz_11]], =puz-dfs-count3=):
+([[file:AoC2025/src_lisp/puz_11.el][2025 puz_11]], =puz-dfs-count3=):
 
 #+begin_src emacs-lisp
 (defun puz-dfs-count (state target)
@@ -269,7 +287,7 @@ miss), fine when the values are numbers.
 
 *Cache key design.* Keying on =(list state target)= works but is
 redundant when =target= is fixed for a whole run — a fresh table per target
-is smaller and faster. Two ways to get that, both in [[file:AoC2025/src_lisp/puz_11.el][puz_11]]:
+is smaller and faster. Two ways to get that, both in [[file:AoC2025/src_lisp/puz_11.el][2025 puz_11]]:
 
 1. /Dynamic binding/ — =defvar= the cache (making it special), then =let=-bind
    a fresh table around the call. The recursive function just refers to
@@ -299,7 +317,7 @@ Requires lexical binding (it is a real closure).
 
 * Buffer as a grid — position arithmetic
 
-The trick that made [[file:AoC2025/src_lisp/puz_04.el][puz_04]] fast: don't convert to (row, col). A buffer
+The trick that made [[file:AoC2025/src_lisp/puz_04.el][2025 puz_04]] fast: don't convert to (row, col). A buffer
 line of =n-cols= characters plus its newline has *stride* =n-cols + 1=, so
 the eight neighbours of any position are eight fixed integer offsets,
 precomputed once ([[file:helper_functions/aoc-functions.el][aoc-functions.el]], =puz-grid-init=):
@@ -332,12 +350,12 @@ strings or lists it would have to be =member= (=equal= test).
 
 * Buffer mutation primitives
 
-| Want                            | Use                                                 |
-|---------------------------------+-----------------------------------------------------|
-| Replace char at POS             | =goto-char=, =delete-char 1=, =insert-char=               |
-| Bulk char replacement in region | =(subst-char-in-region BEG END FROM TO t)=            |
-| Disable undo recording (speed)  | =(let ((buffer-undo-list t)) ...)=                    |
-| Rectangle text                  | =extract-rectangle=, =rectangle-mark-mode=            |
+| Want                            | Use                                         |
+|---------------------------------+---------------------------------------------|
+| Replace char at POS             | =goto-char=, =delete-char 1=, =insert-char= |
+| Bulk char replacement in region | =(subst-char-in-region BEG END FROM TO t)=  |
+| Disable undo recording (speed)  | =(let ((buffer-undo-list t)) ...)=          |
+| Rectangle text                  | =extract-rectangle=, =rectangle-mark-mode=  |
 
 The =buffer-undo-list= trick is significant: without it, every
 =delete-char= / =insert-char= in a mutation loop records an undo entry, and
@@ -350,7 +368,7 @@ commands" is not always the right instinct for compute.
 
 * Two-phase in-place updates
 
-[[file:AoC2025/src_lisp/puz_04.el][puz_04]] part 2 is a cellular-automaton style erosion: all cells must be
+[[file:AoC2025/src_lisp/puz_04.el][2025 puz_04]] part 2 is a cellular-automaton style erosion: all cells must be
 evaluated against the *same* generation. Three ways to avoid reading your
 own writes, all present in the file:
 
@@ -366,15 +384,15 @@ useful for any simulate-a-generation problem.
 
 * Performance tooling
 
-| Tool                                          | Use                                    |
-|-----------------------------------------------+----------------------------------------|
-| =(benchmark-run N FORM)=                        | → =(seconds gcs gc-seconds)=             |
-| =(benchmark-call FN N)=                         | same, for a function value             |
-| =(profiler-start 'cpu)= … =(profiler-report)=     | sampling profiler, tree output         |
-| =(byte-compile 'symbol)= / =byte-compile-file=    | compile a single function / a file     |
-| =(subr-native-elisp-p f)=, =(byte-code-function-p f)= | check what a symbol actually is  |
+| Tool                                                  | Use                                |
+|-------------------------------------------------------+------------------------------------|
+| =(benchmark-run N FORM)=                              | → =(seconds gcs gc-seconds)=       |
+| =(benchmark-call FN N)=                               | same, for a function value         |
+| =(profiler-start 'cpu)= … =(profiler-report)=         | sampling profiler, tree output     |
+| =(byte-compile 'symbol)= / =byte-compile-file=        | compile a single function / a file |
+| =(subr-native-elisp-p f)=, =(byte-code-function-p f)= | check what a symbol actually is    |
 
-The headline lesson from [[file:AoC2025/src_lisp/puz_04.el][puz_04]]'s benchmark block: *byte-compiling is
+The headline lesson from [[file:AoC2025/src_lisp/puz_04.el][2025 puz_04]]'s benchmark block: *byte-compiling is
 worth 4–10x*, and it also makes the profiler readable. Interpreted code
 profiles as a tree of =let= / =while= / =if= primitives — the interpreter's
 own machinery — which tells you nothing. Byte-compiled, the profile
@@ -460,18 +478,18 @@ literal string.
 
 - =(split-string s "" t)= explodes a string into single-character strings —
   handy but wasteful; =(vconcat s)= or =(string-to-list s)= is usually better
-  ([[file:AoC2025/src_lisp/puz_03.el][puz_03]] notes this).
+  ([[file:AoC2025/src_lisp/puz_03.el][2025 puz_03]] notes this).
 - =(split-string s)= with no separator splits on whitespace *and* trims —
-  exactly right for whitespace-separated number rows ([[file:AoC2025/src_lisp/puz_06.el][puz_06]]).
+  exactly right for whitespace-separated number rows ([[file:AoC2025/src_lisp/puz_06.el][2025 puz_06]]).
 - =(split-string text "\n\n" t)= splits an input file into its blank-line
-  separated blocks ([[file:AoC2025/src_lisp/puz_05.el][puz_05]]) — the elisp equivalent of Python's
+  separated blocks ([[file:AoC2025/src_lisp/puz_05.el][2025 puz_05]]) — the elisp equivalent of Python's
   =f.read().split('\n\n')=.
 - =last= returns the last *cons*, so =(car (last lst))= is the last element;
   =butlast= returns everything but the last. Non-destructive pair, unlike
-  =nreverse= + =pop= ([[file:AoC2025/src_lisp/puz_06.el][puz_06]]).
+  =nreverse= + =pop= ([[file:AoC2025/src_lisp/puz_06.el][2025 puz_06]]).
 - =unless= returns =nil= when the condition holds, which makes it a free
   base case for list-building recursion — =(cons x (recurse ...))= against a
-  =nil= tail just works ([[file:AoC2025/src_lisp/puz_03.el][puz_03]], =puz-construct-largest=).
+  =nil= tail just works ([[file:AoC2025/src_lisp/puz_03.el][2025 puz_03]], =puz-construct-largest=).
 - =(mapconcat #'identity list "")= joins strings; since Emacs 29 the
   separator is optional and =identity= can be omitted for a list of strings.
 - =(message "%S" x)= prints the *readable* form (strings get quotes);
@@ -480,7 +498,7 @@ literal string.
 - =(number-to-string n)= / =(string-to-number s)= — remember the latter
   returns =0= on garbage rather than signalling.
 - =seq-some= returns the first non-nil *result of the predicate*, not =t= —
-  usable as "find" as well as "any" ([[file:AoC2025/src_lisp/puz_05.el][puz_05]]).
+  usable as "find" as well as "any" ([[file:AoC2025/src_lisp/puz_05.el][2025 puz_05]]).
 
 * Style arc
 ** AoC 2025
@@ -503,7 +521,7 @@ refined ones — the point was the comparison, not the answer.
 
 * INBOX
 
-Some RX magic, day 2 2022, not fast but nice demo
+Some RX magic, [[file:AoC2022/src_lisp/puz_03.el][2022 puz_03]], not fast but nice demo
 
 #+begin_src emacs-lisp
   (let ((case-fold-search nil)
@@ -512,6 +530,306 @@ Some RX magic, day 2 2022, not fast but nice demo
    alpha) " " (zero-or-more alpha) (backref 1) (zero-or-more alpha) eos) s )
       (match-string 1 s)))
 #+end_src
+
+** pcase — pattern matching as dispatch and as parser
+
+Two quite different uses turned up.
+
+*Dispatch on a value* ([[file:AoC2024/src_lisp/puz_17.el][2024 puz_17]], the opcode switch). Numbers,
+strings and keywords match themselves, clauses are tried top to bottom:
+
+#+begin_src emacs-lisp
+(pcase (puz-get-op cpu)
+  (0 ...)
+  ((and 3 (guard (not (zerop (puz-cpu-a cpu))))) ... 'jnz)  ; 3 AND a condition
+  (3 nil)                                                   ; 3, guard failed
+  (op (error "Bad opcode: %S" op)))                         ; catch-all, binds op
+#+end_src
+
+- =(and PAT (guard EXPR))= — pattern plus an arbitrary boolean. Order
+  matters: the guarded clause has to come before the plain =3=.
+- A *bare symbol is a binding, not a comparison*. =op= matches anything and
+  binds it; =_= matches anything and binds nothing. Gotcha: to compare
+  against the /value/ of a variable =x= you need =(pred (equal x))= (or
+  =(guard (equal val x))=) — writing just =x= silently shadows it and
+  matches everything.
+- A quoted symbol ='jnz= matches that symbol literally.
+- No clause matching → =pcase= returns =nil= (=pcase-exhaustive= signals
+  instead).
+
+*Destructure a string with rx* ([[file:AoC2025/src_lisp/puz_10.el][2025 puz_10]], the parser). Inside
+=pcase=, an =(rx ...)= pattern may contain =(let VAR RX)=, which binds VAR to
+that sub-match — named groups, no =match-string= bookkeeping:
+
+#+begin_src emacs-lisp
+(pcase line
+  ((rx bol "[" (let lights (one-or-more (any ".#"))) "] "
+       (let buttons (one-or-more ...))
+       "{" (let joltage (one-or-more (any "," digit))) "}" eol)
+   ...use lights, buttons, joltage as strings...))
+#+end_src
+
+Note a line that does not match just falls through silently (=nil=) —
+nice for skipping blanks, nasty for hiding a parser bug. A final
+=(_ (error "Bad line: %S" line))= clause makes it loud.
+
+** cl-defstruct — records with setf-able accessors
+
+[[file:AoC2024/src_lisp/puz_17.el][2024 puz_17]] keeps the whole CPU state in one struct:
+
+#+begin_src emacs-lisp
+(cl-defstruct puz-cpu
+  "Docstring."
+  (a 0) (b 0) (c 0) (pc 0) (out nil) prog)   ; (SLOT DEFAULT) or bare SLOT
+#+end_src
+
+That one form generates =make-puz-cpu= (keyword constructor, =:a 5 :prog
+...=), one accessor per slot (=puz-cpu-a=, =puz-cpu-pc=, ...), the predicate
+=puz-cpu-p= and =copy-puz-cpu= (shallow copy).
+
+The key point: accessors are /generalized variables/ (places), so everything
+that works on a place works on a slot:
+
+#+begin_src emacs-lisp
+(setf (puz-cpu-a cpu) (ash (puz-cpu-a cpu) -3))
+(cl-incf (puz-cpu-pc cpu) 2)
+(push val (puz-cpu-out cpu))
+#+end_src
+
+Structs are mutable and passed by reference, so =puz-exec-op= updates the
+caller's cpu in place. They print readably as =#s(puz-cpu 0 0 0 ...)=, which
+makes =(message "%S" cpu)= a decent debugger.
+
+** Bit operations and bitmask state
+
+| Function                   | Does                                                                 | Seen in          |
+|----------------------------+----------------------------------------------------------------------+------------------|
+| =(ash N COUNT)=            | shift left; *negative COUNT shifts right* (i.e. floor-divide by 2^k) | [[file:AoC2024/src_lisp/puz_17.el][2024-17]]          |
+| =(logand A B)=             | bitwise and; =(logand x 7)= is =x mod 8=                             | [[file:AoC2024/src_lisp/puz_17.el][2024-17]]          |
+| =(logxor A B)=             | bitwise xor — toggling a set of bits                                 | [[file:AoC2024/src_lisp/puz_17.el][2024-17]], [[file:AoC2025/src_lisp/puz_10.el][2025-10]] |
+| =(logior A B)=             | bitwise or — build a mask from bits                                  | —                |
+| =(string-to-number S 2)=   | parse a base-2 string                                                | [[file:AoC2025/src_lisp/puz_10.el][2025-10]]          |
+| =(expt 2 N)= / =(ash 1 N)= | the mask for bit N                                                   | [[file:AoC2025/src_lisp/puz_10.el][2025-10]]          |
+
+There is no separate shift-right; =(ash a (- n))= is the idiom. Integers are
+bignums when needed, so none of this overflows.
+
+The pattern from [[file:AoC2025/src_lisp/puz_10.el][2025 puz_10]]: a row of on/off lights becomes one
+integer, each button becomes a mask, and "press button" is a single
+=logxor=. The state is then a plain integer — cheap to hash with the default
+=eql= test, no list/string keys needed.
+
+** More cl-loop clauses
+
+Additions to the table in the cl-loop section:
+
+| Clause                      | Does                                                          | Seen in          |
+|-----------------------------+---------------------------------------------------------------+------------------|
+| =for (A . REST) on LIST=    | tail iteration *with* destructuring — "this one + the rest"   | [[file:AoC2025/src_lisp/puz_08.el][2025-08]], [[file:AoC2025/src_lisp/puz_09.el][2025-09]] |
+| =for X across VEC=          | iterate a vector or string                                    | [[file:AoC2025/src_lisp/puz_08.el][2025-08]]          |
+| =for X across-ref VEC=      | same, but X is a /place/ — =(setf X ...)= writes the vector   | [[file:AoC2025/src_lisp/puz_09.el][2025-09]]          |
+| =for I from 0=              | unbounded counter beside another =for= — Python's =enumerate= | [[file:AoC2025/src_lisp/puz_08.el][2025-08]]          |
+| =append EXPR=               | accumulate by concatenating lists (flatten one level)         | [[file:AoC2025/src_lisp/puz_08.el][2025-08]], [[file:AoC2025/src_lisp/puz_10.el][2025-10]] |
+| =maximize= / =minimize=     | running max / min                                             | [[file:AoC2025/src_lisp/puz_09.el][2025-09]], [[file:AoC2022/src_lisp/puz_01.el][2022-01]] |
+| =until COND= / =while COND= | early exit; =finally= still runs                              | [[file:AoC2025/src_lisp/puz_08.el][2025-08]]          |
+| =unless COND <clause>=      | negated =when=                                                | [[file:AoC2025/src_lisp/puz_10.el][2025-10]]          |
+| =do FORM and collect X=     | =and= chains several clauses under one condition              | [[file:AoC2025/src_lisp/puz_10.el][2025-10]]          |
+| =if ... else if ... =       | conditional clauses with else branch                          | [[file:AoC2025/src_lisp/puz_09.el][2025-09]]          |
+
+Gotchas met along the way:
+- =maximize= over zero iterations returns =nil=, and feeding that =nil= to an
+  outer =maximize= / =sum= errors. That is why the pair loops need the
+  =when rest= guard on the last tail.
+- After =until=, the loop variables still hold the element that triggered
+  the exit, and =finally return= can use them — [[file:AoC2025/src_lisp/puz_08.el][2025 puz_08]] part 2 returns
+  from the very pair that joined the last two trees.
+- =append= copies as it goes; =nconc= is the destructive (faster) variant
+  when the inner lists are freshly consed anyway.
+
+The "all pairs with indices" loop from [[file:AoC2025/src_lisp/puz_08.el][2025 puz_08]], combining four of
+these:
+
+#+begin_src emacs-lisp
+(cl-loop for i from 0
+         for (p1 . rest) on points
+         when rest
+         append (cl-loop for j from (1+ i)
+                         for p2 in rest
+                         collect (list (dist p1 p2) i j)))
+#+end_src
+
+** Union-find (disjoint set) on vectors
+
+[[file:AoC2025/src_lisp/puz_08.el][2025 puz_08]]. Two parallel vectors indexed by node number: =parent= and
+=size=.
+
+#+begin_src emacs-lisp
+(vconcat (number-sequence 0 (1- n)))   ; parent[i] = i, every node its own root
+(make-vector n 1)                      ; size[i] = 1
+#+end_src
+
+Because =aset= /returns the value it stored/, find-with-path-compression is
+one expression — recurse to the root, write it back, return it:
+
+#+begin_src emacs-lisp
+(defun puz-find (dset i)
+  (let ((parent (aref dset i)))
+    (if (= i parent) i
+      (aset dset i (puz-find dset parent)))))
+#+end_src
+
+Same trick as =puthash= in the memo idiom — =setf=, =aset=, =puthash= all
+return the new value, so "store and return" never needs a =progn=.
+
+Union by size (hang the smaller tree under the bigger root) keeps the
+trees shallow; returning the updated tree count from =puz-union= is what
+lets part 2 stop with ~until (= 1 ...)~.
+
+Small things: =number-sequence= is inclusive at both ends. =make-vector=
+puts the /same/ object in every slot — fine for numbers, a trap if the
+initial value is a list you later mutate.
+
+** Flat vector as a 2D grid, coordinate compression, summed-area table
+
+All from [[file:AoC2025/src_lisp/puz_09.el][2025 puz_09]] part 2.
+
+*Flat grid.* One vector of =width * height=, and a single index helper
+=(+ x (* y width))=. Neighbours are the offsets =-1 +1 -width +width=.
+Unlike the buffer-as-grid trick there is no newline column acting as a
+wall, so =±1= wraps from the end of one row to the start of the next. It
+is harmless here only because the outermost ring is known to be empty —
+otherwise pad the grid or check =x= explicitly.
+
+*Coordinate compression.* Sort and de-duplicate the distinct x's (and
+y's), then map coordinate → =2*rank + 1=. The odd cells are the real
+coordinates, the even cells stand for the gaps between them (and the
+border), so "is there space between these two lines" survives the
+compression. Shrinks a ~100000² problem to a few hundred squared.
+
+#+begin_src emacs-lisp
+(mapcar #'seq-uniq (mapcar #'sort (apply #'cl-mapcar #'list points)))  ; -> (xs ys)
+#+end_src
+
+(transpose, sort each, uniq each — =seq-uniq= keeps order so sorted stays
+sorted.)
+
+*Flood fill with an explicit stack.* =push= / =pop= on a list is a LIFO
+stack, so a =while stack= loop is an iterative DFS — no recursion depth
+worries (=max-lisp-eval-depth=). Mark a cell when it is /pushed/, not when
+it is popped, so nothing is queued twice.
+
+*Summed-area table (2D prefix sum).* =S[x,y]= = sum of everything strictly
+above-left of =(x,y)=; built in one pass with inclusion–exclusion, after
+which any rectangle sum is four lookups:
+
+#+begin_example
+build:  S[x,y] = S[x-1,y] + S[x,y-1] - S[x-1,y-1] + grid[x-1,y-1]
+query:  sum(x1..x2, y1..y2) = S[x2+1,y2+1] - S[x1,y2+1] - S[x2+1,y1] + S[x1,y1]
+#+end_example
+
+Marking "outside" as 1 turns "rectangle lies fully inside" into "rectangle
+sum is 0" — an O(1) test per candidate pair.
+
+** Hash table as a visited set; BFS by levels
+
+- *Visited set*: =(puthash key t table)= / =(gethash key table)=.
+  [[file:AoC2025/src_lisp/puz_07.el][2025 puz_07]] part 1 uses exactly the same table type as part 2, once as
+  a visited set (count each splitter once) and once as a memo cache
+  (count paths) — the same DFS, the only difference is what is stored.
+- *Test function*: =eql= is the default and the right one for integer keys
+  (positions, bitmasks); =equal= only when keys are strings or lists.
+  Integer-encoded state is the cheap option.
+- *BFS without a queue* ([[file:AoC2025/src_lisp/puz_10.el][2025 puz_10]]): keep the whole frontier as a list,
+  and build the next frontier with nested =cl-loop ... append=. The number
+  of rounds is the distance. No =popleft= needed — lists have no cheap one
+  anyway (=(pop q)= is fine, appending at the tail is O(n)).
+
+#+begin_src emacs-lisp
+(setq frontier
+      (cl-loop for state in frontier
+               append (cl-loop for move in moves
+                               for new = (logxor state move)
+                               unless (gethash new seen)
+                               do (puthash new t seen) and collect new)))
+#+end_src
+
+** seq.el set and chunking functions on strings
+
+From [[file:AoC2022/src_lisp/puz_03.el][2022 puz_03]] (the general cl- vs seq- story is in "Data types and
+sequences" below):
+
+| Function                                  | Does                                                                        |
+|-------------------------------------------+-----------------------------------------------------------------------------|
+| =(seq-split SEQ N)=                       | chunks of length N, same type as input (Emacs 29+); last chunk may be short |
+| =(seq-intersection A B)=                  | elements of A also in B, in A's order — *duplicates kept*                   |
+| =(seq-uniq SEQ)=                          | remove duplicates, keep first occurrences                                   |
+| =(seq-difference A B)=, =(seq-union A B)= | the rest of the family                                                      |
+
+=(seq-split rucksack (/ (length rucksack) 2))= halves a string, and
+=(seq-split list 3)= groups a list in threes — the same function for both
+parts. =(apply #'seq-intersection (seq-split s n))= spreads the two halves
+as arguments. For three or more sets, fold instead:
+=(seq-reduce #'seq-intersection (cdr sets) (car sets))=.
+
+** Chars as numbers, vectors as lookup tables
+
+[[file:AoC2022/src_lisp/puz_02.el][2022 puz_02]]: since characters are integers, =(- (aref line 0) ?A)= maps
+=A B C= to =0 1 2= directly — the whole parser, replacing six
+=string-replace= calls. Same idea in the [[file:AoC2022/src_lisp/puz_03.el][2022 puz_03]] score function
+(=(- item ?a)=, and =(<= ?a item)= as the lower-case test, relying on ASCII
+order).
+
+A vector literal indexed by a small integer is the lightest possible
+lookup table — =(aref [3 6 0] res)= instead of a =cond= / =pcase= / alist:
+
+#+begin_src emacs-lisp
+(let ((score [3 6 0]))                      ; indexed by (me - them) mod 3
+  (cl-loop for (them me) in parsed
+           sum (+ (1+ me) (aref score (mod (- me them) 3)))))
+#+end_src
+
+=mod= always returns a result with the sign of the divisor, so
+=(mod -1 3)= → 2 and cyclic arithmetic just works (=%= does not: =(% -1 3)=
+→ -1).
+
+** sort — Emacs 30 details worth knowing
+
+Refines the note in "Sorting with keys":
+- The new-style call =(sort SEQ)= / =(sort SEQ :key ...)= returns a sorted
+  /copy/; add =:in-place t= to get the old behaviour. Only the old
+  two-argument =(sort SEQ PRED)= is destructive. That is why
+  =(mapcar #'sort lists)= in [[file:AoC2025/src_lisp/puz_09.el][2025 puz_09]] is safe.
+- The default comparator is =value<=, which orders numbers, strings,
+  symbols and — lexicographically — lists and vectors. So a list of
+  =(dist i j)= triples sorts by distance with a bare =(sort pairs)=; the
+  =:key #'car= in [[file:AoC2025/src_lisp/puz_08.el][2025 puz_08]] is there for clarity (and speed).
+- Top-n: =(seq-subseq (sort xs :reverse t) 0 n)= ([[file:AoC2022/src_lisp/puz_01.el][2022 puz_01]]), or
+  =(take n ...)= on a list.
+
+** Small parsing bits
+
+- =(split-string s "[^0-9]+" t)= — every run of digits in a string,
+  whatever the punctuation around them. The quick "all the integers on
+  this line" ([[file:AoC2025/src_lisp/puz_10.el][2025 puz_10]]). Needs ="-?[0-9]+"= matching instead if signs
+  matter.
+- =(string-replace FROM TO S)= — literal, non-regexp replacement
+  ([[file:AoC2025/src_lisp/puz_10.el][2025 puz_10]]).
+- =nreverse= / =reverse= work on strings too ([[file:AoC2025/src_lisp/puz_10.el][2025 puz_10]] flips the light
+  string so light 0 becomes bit 0).
+- Nested =mapcar= for list-of-lists comes up often enough that it got a
+  helper, =puz-mapcar2= in [[file:helper_functions/aoc-functions.el][aoc-functions.el]] ([[file:AoC2022/src_lisp/puz_01.el][2022 puz_01]]).
+- =(mapconcat #'number-to-string list ",")= — join numbers into the answer
+  string ([[file:AoC2024/src_lisp/puz_17.el][2024 puz_17]]).
+
+** More sightings of techniques already filed above
+
+- Memo =or= / =puthash= idiom with a dynamically bound cache (bare
+  =(defvar puz-cache)= + =let=): [[file:AoC2025/src_lisp/puz_07.el][2025 puz_07]] part 2.
+- =(vconcat (buffer-string))= grid with stride arithmetic: [[file:AoC2025/src_lisp/puz_07.el][2025 puz_07]].
+- Transpose via =(apply #'cl-mapcar #'list rows)=: [[file:AoC2025/src_lisp/puz_09.el][2025 puz_09]].
+- =sort= with =:key= / =:reverse=: [[file:AoC2025/src_lisp/puz_08.el][2025 puz_08]], [[file:AoC2022/src_lisp/puz_01.el][2022 puz_01]].
+- Blank-line block split with =(split-string text "\n\n" t)=: [[file:AoC2022/src_lisp/puz_01.el][2022 puz_01]].
+- Destructuring =for (a b) in=: [[file:AoC2022/src_lisp/puz_02.el][2022 puz_02]], [[file:AoC2025/src_lisp/puz_08.el][2025 puz_08]].
 
 
 
@@ -543,14 +861,14 @@ list, vector, string. Check anything with =type-of= or =cl-typep=.
 
 ** The three sequence types
 
-|                | List                    | Vector             | String                    |
-|----------------+-------------------------+--------------------+---------------------------|
-| Structure      | chain of cons cells     | contiguous block   | contiguous block of chars |
-| Element access | =nth= / =elt=, O(n)         | =aref= / =elt=, O(1)   | =aref= / =elt=, O(1)*         |
-| Length         | O(n), walks the chain   | O(1)               | O(1)                      |
-| Grow           | O(1) =cons= / =push= at front | fixed, copy to grow | fixed, copy to grow     |
-| Literal        | ='(1 2 3)=                | =[1 2 3]=            | ="abc"=                     |
-| Elements       | anything                | anything           | characters only           |
+|                | List                          | Vector               | String                    |
+|----------------+-------------------------------+----------------------+---------------------------|
+| Structure      | chain of cons cells           | contiguous block     | contiguous block of chars |
+| Element access | =nth= / =elt=, O(n)           | =aref= / =elt=, O(1) | =aref= / =elt=, O(1)*     |
+| Length         | O(n), walks the chain         | O(1)                 | O(1)                      |
+| Grow           | O(1) =cons= / =push= at front | fixed, copy to grow  | fixed, copy to grow       |
+| Literal        | ='(1 2 3)=                    | =[1 2 3]=            | ="abc"=                   |
+| Elements       | anything                      | anything             | characters only           |
 
 * Multibyte strings complicate =aref= internally, but Emacs caches
 positions; treat it as O(1) in practice.
@@ -598,12 +916,12 @@ need =string-to-list= first.
 
 ** Equality
 
-| Predicate | True when                               | Use for                          |
-|-----------+-----------------------------------------+----------------------------------|
-| =eq=        | same object                             | symbols, fixnums (chars), identity |
-| =eql=       | =eq=, or numbers of same type and value   | numbers incl. floats / bignums   |
-| =equal=     | same structure and contents             | strings, lists,  vectors         |
-| ~=~         | numerically equal (=(= 1 1.0)= → t)       | numbers only, errors otherwise   |
+| Predicate | True when                               | Use for                            |
+|-----------+-----------------------------------------+------------------------------------|
+| =eq=      | same object                             | symbols, fixnums (chars), identity |
+| =eql=     | =eq=, or numbers of same type and value | numbers incl. floats / bignums     |
+| =equal=   | same structure and contents             | strings, lists,  vectors           |
+| ~=~       | numerically equal (=(= 1 1.0)= → t)     | numbers only, errors otherwise     |
 
 Function pairs follow these: =memq= / =member=, =assq= / =assoc=,
 =delq= / =delete=. The =q= versions use =eq=.
