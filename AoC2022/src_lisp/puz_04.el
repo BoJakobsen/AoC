@@ -25,13 +25,23 @@
 
 ;; Problem specific parser
 ;; Can likely be simplified with a regexp.
-(defun puz-parse ()
-  "Parse `*puz-scratch*'.
-List of list of pairs (also lists)."
-  (with-current-buffer "*puz-scratch*"
-      (puz-mapcar2 (lambda (range) (mapcar #'string-to-number (split-string range "-")))  (mapcar (lambda (pair) (split-string pair ",") )  (split-string (buffer-string) "\n" t)))))
+;; (defun puz-parse ()
+;;   "Parse `*puz-scratch*'.
+;; List of list of pairs (also lists)."
+;;   (with-current-buffer "*puz-scratch*"
+;;     (puz-mapcar2 (lambda (range) (mapcar #'string-to-number (split-string range "-")))
+;;                  (mapcar (lambda (pair) (split-string pair ","))
+;;                          (split-string (buffer-string) "\n" t)))))
 
-;; (puz-parse)
+;; Cleaner version after review.
+(defun puz-parse ()
+  "Parse `*puz-scratch*'."
+  (with-current-buffer "*puz-scratch*"
+    (seq-split (seq-split
+                (mapcar #'string-to-number (split-string (buffer-string)
+                                                         (rx (one-or-more (not digit))) t))
+                2) 2)))
+(puz-parse)
 
 (defun puz-solve-part1 (parsed)
   "Solve Part 1 using PARSED.
@@ -44,6 +54,18 @@ Counts pairs where one is fully contained in the other."
 
 (message "Solution for part 1 is = %S" (puz-solve-part1  (puz-parse)))
 ;; (aoc-submit-answer (puz-solve-part1 (puz-parse)) 1)
+
+;; A bit more clean, same logic
+(defun puz-solve-part1b (parsed)
+  "Solve Part 1 using PARSED.
+Counts pairs where one is fully contained in the other."
+  (cl-loop for pair in parsed
+           for ((a1 a2) (b1 b2)) =  (sort pair :key #'car) ; presort after start of interval
+           for b-in-a = (and (<= b1 a2) (<= b2 a2))
+           for a-in-b = (and (= a1 b1)  (>= b2 a2))
+           count (or a-in-b b-in-a)))
+
+(message "Solution for part 1b is = %S" (puz-solve-part1b  (puz-parse)))
 
 (defun puz-solve-part2 (parsed)
   "Solve Part 2 using PARSED.
