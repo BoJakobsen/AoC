@@ -36,10 +36,10 @@ Returns list with starting-stacks drawing, and processed procedures"
            (procedures (puz-mapcar2 #'string-to-number
                                     (mapcar (lambda (line) (split-string line (rx (one-or-more (not digit))) t))
                                             (split-string (cadr puz-parts) "\n" t)))))
-      (list starting procedures)
-      )))
+      (list starting procedures))))
 
 (defun puz-decode-drawing (start-draw)
+  "Decode the START-DRAW, mapping to a list of stacks."
  (let* ((col ))
   (cl-loop for i from 1
            while (setq col (seq-position (car (last start-draw)) (+ i ?0))) ; find which number exists
@@ -49,13 +49,20 @@ Returns list with starting-stacks drawing, and processed procedures"
                             collect box))))
 
 (defun puz-solve-part1 (parsed)
-  "Solve Part 1 using PARSED."
-  (let ((stacks (puz-decode-drawing (car parsed))))
-    (message "%s" stacks) 
-  ))
+  "Solve Part 1 using PARSED.
+Simulate the box movements on the stacks, using simple `push' / `pop'."
+  (let ((stacks (puz-decode-drawing (car parsed)))
+        (procedures (cadr parsed) ))
+    (cl-loop for proc in procedures
+             do (cl-loop for i from 1 to (nth 0 proc)
+                         do (push 
+                             (pop (nth (1- (nth 1 proc)) stacks))
+                             (nth (1- (nth 2 proc)) stacks))))
+    (string-join (cl-loop for stack in stacks
+                          collect (nth 0 stack)))))
 
 (message "Solution for part 1 is = %S" (puz-solve-part1  (puz-parse)))
-;;(aoc-submit-answer (puz-solve-part1 (puz-parse)) 1)
+(aoc-submit-answer (puz-solve-part1 (puz-parse)) 1)
 
 (defun puz-solve-part2 (parsed)
   "Solve Part 2 using PARSED."
