@@ -21,7 +21,7 @@
 (puz-loaders "../data" 05)
 
 ;; loads current data into *puz-scratch* buffer.
-(puz-load-data) 
+(puz-load-data)
 
 ;; For grid problem
 ; (puz-grid-init); sets puz-grid-n-cols, puz-grid-n-rows, puz-grid-offsets (8- nab)
@@ -55,27 +55,25 @@ Simulate the box movements on the stacks, using simple `push' / `pop'."
         (procedures (cadr parsed) ))
     (cl-loop for proc in procedures
              do (cl-loop for i from 1 to (nth 0 proc)
-                         do (push 
+                         do (push
                              (pop (nth (1- (nth 1 proc)) stacks))
                              (nth (1- (nth 2 proc)) stacks))))
     (string-join (cl-loop for stack in stacks
                           collect (nth 0 stack)))))
 
 (message "Solution for part 1 is = %S" (puz-solve-part1  (puz-parse)))
-(aoc-submit-answer (puz-solve-part1 (puz-parse)) 1)
-
-
+;;(aoc-submit-answer (puz-solve-part1 (puz-parse)) 1)
 
 (defun puz-solve-part2 (parsed)
   "Solve Part 2 using PARSED.
-Simulate the box movements one the stacks, using ."
+Simulate the box movements one the stacks, using `take', `nthcdr', and `setf'."
   (let ((stacks (puz-decode-drawing (car parsed)))
         (procedures (cadr parsed) ))
     (cl-loop for proc in procedures
              do (progn
                   (setf (nth (1- (nth 2 proc)) stacks)
                         (append
-                         (take (nth 0 proc) (nth (1- (nth 1 proc)) stacks))  
+                         (take (nth 0 proc) (nth (1- (nth 1 proc)) stacks))
                          (nth (1- (nth 2 proc)) stacks)))
                   (setf (nth (1- (nth 1 proc)) stacks)
                         (nthcdr (nth 0 proc) (nth (1- (nth 1 proc)) stacks)))))
@@ -83,7 +81,6 @@ Simulate the box movements one the stacks, using ."
                           collect (nth 0 stack)))))
 
 (message "Solution for part 2 is = %S" (puz-solve-part2 (puz-parse)))
-(aoc-submit-answer (puz-solve-part2 (puz-parse)) 2)
-
+;;(aoc-submit-answer (puz-solve-part2 (puz-parse)) 2)
 
 ;;; puz_05.el ends here
