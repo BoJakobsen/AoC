@@ -36,18 +36,18 @@
 
 (defun puz-get-dir (fulltree path)
   "Find the cons cell of FULLTREE corresponding to PATH (a list of sub dirs).
-PATH is assumed to be in revers order, for easy `push' `pop' action on the path"
+PATH is assumed to be in reverse order, for easy `push' `pop' action on the path"
   (cl-reduce
-   (lambda (subtree subdir)
-     (assoc subdir subtree))
-             (reverse path)  :initial-value fulltree))
+   (lambda (subtree subdir)   ; SUBTREE is a cons cell
+     (assoc subdir (cdr subtree)))
+             (reverse path)  :initial-value (cons nil fulltree))) ; initial vallue needs wrapping
 
 ;; In hindsight the outer most list could have been "skipped" but this is nice and
 ;; works with alist methods, even as the final solution manually handles the structure.
 (defun puz-parse-tree (parsed)
   "Parse the output of investigate the file structure in PARSED.
 Returns a tree structure of alist type.
-Assumes that we only traverse each folder ones"
+Assumes that we only traverse each folder once"
   (let ((cur-dir (list "/"))
         (tree (list (cons "/" nil))))
     (dolist (line parsed)
@@ -61,16 +61,16 @@ Assumes that we only traverse each folder ones"
         ((rx bol "$ cd " (let dir-name (+ any)) eol)
          (push dir-name cur-dir)); navigate "down" to dir-name
         ((rx bol "dir " (let dir-name (+ any))  eol); listing of a sub dir in current dir
-         (push (cons dir-name nil) (cdr (puz-get-dir tree cur-dir)))) ; assume we havn't seen it before
+         (push (cons dir-name nil) (cdr (puz-get-dir tree cur-dir)))) ; assume we haven't seen it before
         ((rx bol (let size (+ digit)) " " (let file-name (+ any))  eol); file: size name
          (push (cons file-name (string-to-number size)) (cdr (puz-get-dir tree cur-dir))))  ; assume we havn't seen it before
         (_
          (message "unknown cmd : %S" line))))
     tree))
 
-;; (puz-parse-tree (puz-parse))
+;;(puz-parse-tree (puz-parse))
 
-;; The Simpel "debug version", loops tree
+;; The simpel "debug version", loops tree
 ;; (defun puz-sum-files-simpel (cur-leaf)
 ;;   (message "Call fkt")
 ;;   (message "leaf: %s  cdr: %s  type: %s " cur-leaf (cdr cur-leaf) (type-of (cdr cur-leaf)))
@@ -92,12 +92,12 @@ Assumes that we only traverse each folder ones"
 Returns a list of the directory sizes."
   (let ((dir-sizes nil))
     (cl-labels ((walk (leaf)
-      (if (numberp (cdr leaf)) ;base case
-        (cdr leaf)
-        (let ((dir-total (cl-loop for branch in (cdr leaf)
-                                  sum (walk branch))))
-          (push dir-total dir-sizes)
-          dir-total)))) ; return value for `walk'
+                  (if (numberp (cdr leaf)) ;base case
+                      (cdr leaf)
+                    (let ((dir-total (cl-loop for branch in (cdr leaf)
+                                              sum (walk branch))))
+                      (push dir-total dir-sizes)
+                      dir-total)))) ; return value for `walk'
       (walk tree)) ; do the recursive walk
     dir-sizes)) ; return the list of dir sizes
 
@@ -107,25 +107,26 @@ Returns a list of the directory sizes."
 
 (defun puz-solve-part1 (parsed max-size)
   "Solve Part 1 using PARSED.
-Sum dir sizes larger than MAX-SIZE."
+Sum dir sizes smaller or equal to  MAX-SIZE."
   (let ((tree (puz-parse-tree parsed)))
-    (cl-loop for size in (puz-sum-files (nth 0 tree))
-             when (< size max-size)
+    (cl-loop for size in (puz-sum-files (assoc "/" tree))
+             when (<= size max-size)
              sum size)))
 
-(message "Solution for part 1 is = %S" (puz-solve-part1  (puz-parse)))
+(message "Solution for part 1 is = %S" (puz-solve-part1  (puz-parse) 100000))
 ;;(aoc-submit-answer (puz-solve-part1 (puz-parse)) 1)
 
 (defun puz-solve-part2 (parsed)
   "Solve Part 2 using PARSED.
-Retun size of smallest dir that needs to be deleted to have the needed space."
+Return size of smallest dir that needs to be deleted to have the needed space."
   (let* ((tree (puz-parse-tree parsed))
          (total-space  70000000)
          (needed-space 30000000)
-         (dir-sizes (puz-sum-files (nth 0 tree)))
+         (dir-sizes (puz-sum-files (assoc "/" tree)))
          (current-free (- total-space (seq-max dir-sizes)))
          (need-to-delete (- needed-space current-free)))
-    (seq-min (seq-keep (lambda (size) (and (> size need-to-delete) size))  dir-sizes ))))
+    ;; seq-filter would have been nicer for another time
+    (seq-min (seq-keep (lambda (size) (and (>= size need-to-delete) size))  dir-sizes ))))
 
 (message "Solution for part 2 is = %S" (puz-solve-part2 (puz-parse)))
 ;;(aoc-submit-answer (puz-solve-part2 (puz-parse)) 2)
