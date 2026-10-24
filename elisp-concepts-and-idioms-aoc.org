@@ -937,3 +937,129 @@ matter once elements are strings or lists.
   =cl-loop= and friends.
 - Primitives in hot loops, where they are fastest.
 
+
+
+
+* Mutation, places and cells
+
+** Two kinds of write
+
+| Kind      | How                      | Who sees it                          |
+|-----------+--------------------------+--------------------------------------|
+| Rebinding | =setq=, =(push x var)=       | only that variable                   |
+| Mutation  | =setcar=, =setcdr=, =aset=     | everyone holding a reference to the object |
+
+=setf= is sugar that picks one of these. You can't always see which:
+=(setf (alist-get k al) v)= mutates if =k= exists (=setcdr= on the cell),
+but *rebinds* =al= if it doesn't (pushes a new cell onto the variable).
+
+Python analogy: =sub.append(x)= mutates, =sub = sub + [x]= rebinds.
+
+** Places (generalized variables)
+
+=push=, =pop=, =setf=, =cl-incf= work on any form =setf= knows how to
+write: =(nth i xs)=, =(aref v i)=, =(car x)=, =(cdr x)=, =(gethash k h)=,
+=(alist-get k al)=. =setf= looks at the *form*, it doesn't evaluate it —
+a call to your own function is not a place.
+
+=(push x (cdr cell))= expands to =(setcdr cell (cons x (cdr cell)))=:
+a real mutation of =cell=. Check with =pp-macroexpand-last-sexp=.
+
+Escape hatch for "pointer to a place": =gv-ref= / =gv-deref=.
+
+** Hold the cell, not the value
+
+To modify something inside a nested structure, hold an object that
+*lives in* the structure and mutate it.
+- =(assoc k al)= → the =(k . v)= cell, mutate its cdr.
+- =(alist-get k al)= → just the value; pushing onto it changes nothing.
+- An empty entry: =(cons "name" nil)=, prints as =("name")=.
+- The root needs a cell too: =(list (cons "/" nil))=.
+
+Test: =(eq var (assoc "dir" parent))= → =t= if you hold the cell.
+
+* Recursion with an accumulator: =let= + =cl-labels=
+
+#+begin_src emacs-lisp :eval no
+(defun collect-things (root)
+  (let ((acc nil))                       ; fresh per call, not global
+    (cl-labels ((walk (node)
+                  ;; recurse with (walk child)
+                  ;; (push something acc) as side effect
+                  ;; return the value the recursion needs
+                  ))
+      (walk root))
+    acc))
+#+end_src
+
+- =cl-labels=, not =cl-flet= — only =cl-labels= lets the function call itself.
+- Compute → store → return: =push= returns the *list*, so the value the
+  recursion needs must be the last form.
+- A =let= with no body returns =nil=.
+- Needs =lexical-binding: t=.
+
+* Folds
+
+- The step function is called as =(fn ACC ELEM)= — accumulator first.
+- State belongs in the accumulator; a lambda that needs to "remember"
+  is a sign the state is in the wrong place.
+- =seq-reduce=: =(fn seq initial)=, initial required.
+- =cl-reduce=: initial optional (=:initial-value=); without it the first
+  element seeds the fold.
+- Writing =(f (f a b) c)= by hand → it's a fold. N-way intersection:
+  fold =seq-intersection=.
+
+=let= inside a lambda is fresh on every call. =let= *around* a lambda
+persists between calls (let over lambda). Beware =(let ((x '(0))) ...)=:
+the quoted literal is shared, so mutating it persists anyway.
+
+* cl-loop reminders
+
+| Clause                        | Meaning                                       |
+|-------------------------------+-----------------------------------------------|
+| =for x in list=                 | elements                                      |
+| =for x on list=                 | successive *tails*                            |
+| =for c across string=           | elements of a string or vector                |
+| =for x being the elements of s= | any sequence                                  |
+| =with v = expr=                 | bind once before the loop                     |
+| =for x = init then expr=        | running state                                 |
+| =thereis expr=                  | stop at first non-nil, return it              |
+| =do f1 f2=                      | several forms ok (indentation is poor → =progn=) |
+| =finally return x=              | =finally= alone does *not* set the return value |
+
+Destructuring is tree-shaped: =for ((a1 a2) (b1 b2)) = ...=.
+
+* Sets
+
+No set type: sets are lists with set operations (O(n·m)).
+- Fast: hash table with =t= values (=:test 'equal= for strings / lists;
+  lists work fine as keys).
+- Small fixed universe: bit set in an integer — =logand= ∩,
+  =logior= ∪, =logcount= size, =logb= position of a single bit.
+- =delete-dups= is hash-based but destructive.
+
+* Lookups with string keys
+
+| Function       | Default test                      |
+|----------------+-----------------------------------|
+| =assq=           | =eq=                                |
+| =assoc=          | =equal=                             |
+| =alist-get=      | =eq= — pass =nil nil #'equal= for strings |
+| =assoc-string=   | case-fold option, symbols by name, bare elements |
+
+=assoc= skips non-cons elements silently — a list of plain strings is
+not an alist.
+
+* Debugging
+
+- =(message "%S : %s" x (type-of x))= — =%S= shows ="12"= vs =12=.
+- =%s= for humans, =%S= for debugging.
+- =(wrong-type-argument number-or-marker-p nil)= → =+= / =sum= got
+  =nil=: some branch returned nothing.
+
+* Lisp-1 vs Lisp-2
+
+Elisp and CL are Lisp-2: a symbol has a value cell and a function cell,
+hence =#'= and =funcall=. Scheme is a Lisp-1: one namespace, =(f x)= works
+on a function held in a variable. Not about code-as-data — all Lisps
+are equally homoiconic.
